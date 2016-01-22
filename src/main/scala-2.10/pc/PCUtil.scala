@@ -22,9 +22,40 @@ object PCUtil {
     */
   def bathDistPro(bathLines: DenseMatrix[Double], data: DenseMatrix[Double])
   : IndexedSeq[(DenseVector[Double], DenseVector[Double], DenseMatrix[Double])] = {
-    println()
     val lineCount = bathLines.cols / 2
     for (i <- 0 until lineCount) yield distPro(bathLines(::, 2 * i), bathLines(::, 2 * i + 1), data)
+  }
+
+  /**
+    * 计算数据点到线的平方投影距离
+    *
+    * @param strPoLine 起点
+    * @param endPoLine 终点
+    * @param data      数据
+    */
+  def distPro(strPoLine: DenseVector[Double], endPoLine: DenseVector[Double]
+              , data: DenseMatrix[Double])
+  : Tuple3[DenseVector[Double], DenseVector[Double], DenseMatrix[Double]] = {
+    //将线的点转成向量表示法
+    val lineVector: DenseVector[Double] = endPoLine - strPoLine
+    //获得线长度
+    val lineLen: Double = norm(lineVector)
+    val lineNormVector: DenseVector[Double] = lineVector :/ lineLen
+    //沿线的单位向量
+    val stMat = VectorUtil.vectorRep(strPoLine, data.cols, Orie.Horz)
+    val diff = data - stMat
+    //投影长度
+    var indexPro: DenseVector[Double] = diff.t * lineNormVector
+    //投影长度必须大于o小于线的长度
+    indexPro = max(indexPro, 0.0)
+    indexPro = min(indexPro, lineLen)
+    //获得投影点坐标向量
+    val pointPro: DenseMatrix[Double] = stMat.t + indexPro * lineNormVector.t
+    //获取数据点到投影点的向量
+    val vecPro: DenseMatrix[Double] = data.t - pointPro
+    //求数据点到投影点的长度值
+    val vecProLenSqu = vecPro :* vecPro //行 列
+    (MatrixUtil.matrixSum(vecProLenSqu, Orie.Horz), indexPro, pointPro)
   }
 
   /**
@@ -353,38 +384,6 @@ object PCUtil {
       y(i, 0) += newLinesLen(minIndex(i))
     }
     (minValue, y, newLines)
-  }
-
-  /**
-    * 计算数据点到线的平方投影距离
-    *
-    * @param strPoLine 起点
-    * @param endPoLine 终点
-    * @param data      数据
-    */
-  def distPro(strPoLine: DenseVector[Double], endPoLine: DenseVector[Double]
-              , data: DenseMatrix[Double])
-  : Tuple3[DenseVector[Double], DenseVector[Double], DenseMatrix[Double]] = {
-    //将线的点转成向量表示法
-    val lineVector: DenseVector[Double] = endPoLine - strPoLine
-    //获得线长度
-    val lineLen: Double = norm(lineVector)
-    val lineNormVector: DenseVector[Double] = lineVector :/ lineLen
-    //沿线的单位向量
-    val stMat = VectorUtil.vectorRep(strPoLine, data.cols, Orie.Horz)
-    val diff = data - stMat
-    //投影长度
-    var indexPro: DenseVector[Double] = diff.t * lineNormVector
-    //投影长度必须大于o小于线的长度
-    indexPro = max(indexPro, 0.0)
-    indexPro = min(indexPro, lineLen)
-    //获得投影点坐标向量
-    val pointPro: DenseMatrix[Double] = stMat.t + indexPro * lineNormVector.t
-    //获取数据点到投影点的向量
-    val vecPro: DenseMatrix[Double] = data.t - pointPro
-    //求数据点到投影点的长度值
-    val vecProLenSqu = vecPro :* vecPro //行 列
-    (MatrixUtil.matrixSum(vecProLenSqu, Orie.Horz), indexPro, pointPro)
   }
 
   /**
