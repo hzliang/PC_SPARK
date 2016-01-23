@@ -24,7 +24,7 @@ object KM {
     }
 
     def km(dataVec: RDD[Vector]) = {
-        val acc = SparkObj.ctx.accumulable(0.0, "kmsees")
+        val acc = SparkObj.ctx.accumulator(0.0, "kmsees")
         for (i <- 2 until ConfigKM.max_clusters) {
             // Cluster the data into two classes using KMeans
             val clusters = KMeans.train(dataVec, i, ConfigKM.numIterations)
