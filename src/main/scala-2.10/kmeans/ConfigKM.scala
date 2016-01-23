@@ -8,5 +8,5 @@ object ConfigKM {
     val numClusters: Int = 2
     val numIterations: Int = 20
     val runs: Int = 3
-    val max_clusters = 4
+    val max_clusters = 6
 }

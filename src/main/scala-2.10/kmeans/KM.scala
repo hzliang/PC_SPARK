@@ -3,8 +3,7 @@ package kmeans
 import org.apache.spark.mllib.clustering.KMeans
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.{SparkConf, SparkContext}
-import org.slf4j.{LoggerFactory, Logger}
+import org.slf4j.{Logger, LoggerFactory}
 import spark.SparkObj
 
 
@@ -16,9 +15,10 @@ object KM {
 
     def main(args: Array[String]) {
         val master = "hdfs://192.168.1.121:9000"
-        val input = master + "/hzl/input/"
+        val input = master + "/hzl/input/cros3.csv"
         val data = SparkObj.ctx.textFile(input)
-        val parsedData = data.map(s => Vectors.dense(s.split(' ').map(_.toDouble))).cache()
+        val parsedData = data.map(s => Vectors.dense(s.split(',').map(_
+            .toDouble))).cache()
         km(parsedData)
         SparkObj.ctx.stop()
     }
@@ -31,7 +31,7 @@ object KM {
             // Evaluate clustering by computing Within Set Sum of Squared Errors
             val sse = clusters.computeCost(dataVec)
             acc.value_=(sse)
-            logger.info("Within Set Sum of Squared Errors = " + acc.value)
+            println("Within Set Sum of Squared Errors = " + acc.value)
             //            clusters
         }
     }
