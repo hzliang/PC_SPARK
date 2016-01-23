@@ -5,6 +5,6 @@ package spark
   */
 object ConfigSP {
 
-    val taskName = ""
+    val taskName = "pc_spark_hzliang"
 
 }
