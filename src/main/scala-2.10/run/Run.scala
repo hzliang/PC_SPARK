@@ -3,12 +3,13 @@ package run
 import breeze.linalg.{DenseVector, DenseMatrix}
 import kmeans.KM
 import org.apache.spark.mllib.linalg.Vectors
-import pc.SKPC
+import pc.{PCUtil, SKPC}
 import spark.SparkObj
+import util.MatrixUtil
 
 /**
- * Created by ad on 2016/1/23.
- */
+  * Created by ad on 2016/1/23.
+  */
 object Run {
 
     def main(args: Array[String]) {
@@ -18,14 +19,16 @@ object Run {
         val dataRDD = SparkObj.ctx.textFile(input).map(s => {
                 Vectors.dense(s.split(',').map(_.toDouble))
             }).cache()
-        val clus = KM.km(dataRDD)
-        clus.predict(dataRDD).zip(dataRDD).groupByKey.map(v => {
+        val clusObj = KM.km(dataRDD)
+        val clusRDD = clusObj.predict(dataRDD).zip(dataRDD)
+        val allLines = clusRDD.groupByKey.map(v => {
             val data = v._2.toArray
-            val dataMat = DenseMatrix.zeros[Double]( data.length, 2)
+            val dataMat = DenseMatrix.zeros[Double](data.length, 2)
             for (i <- 0 until data.length) {
-                dataMat(i, ::) := new DenseVector[Double](data(i).toArray)
+                dataMat(i, ::) := new DenseVector[Double](data(i).toArray).t
             }
-            SKPC.lines(dataMat)
-        })
+            SKPC.extractPC(dataMat)
+        }).reduce(DenseMatrix.horzcat(_, _))
+        println(PCUtil.linkLines(allLines))
     }
 }
