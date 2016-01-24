@@ -1,31 +1,35 @@
 package kmeans
 
 import org.apache.spark.mllib.clustering.KMeans
-import org.apache.spark.mllib.linalg.Vector
+import org.apache.spark.mllib.linalg.{Vectors, Vector}
 import org.apache.spark.rdd.RDD
 import org.slf4j.{Logger, LoggerFactory}
+import spark.SparkObj
 
 
 /**
- * Created by ad on 2016/1/23.
- */
+  * Created by ad on 2016/1/23.
+  */
 object KM {
     val logger: Logger = LoggerFactory.getLogger(KM.getClass)
 
-    //    def main(args: Array[String]) {
-    //        val master = "hdfs://192.168.1.121:9000"
-    //        val input = master + "/hzl/input/cros3.csv"
-    //        val data = SparkObj.ctx.textFile(input)
-    //        val parsedData = data.map(s => Vectors.dense(s.split(',').map(_
-    //            .toDouble))).cache()
-    //        km(parsedData)
-    //        SparkObj.ctx.stop()
-    //    }
+    def main(args: Array[String]) {
+        val master = "hdfs://192.168.1.121:9000"
+        val input = master + "/hzl/input/cros3.csv"
+        val data = SparkObj.ctx.textFile(input)
+        val parsedData = data.map(s => Vectors.dense(s.split(',').map(_
+            .toDouble))).cache()
+        val clus = km(parsedData)
+        val resRDD = clus.predict(parsedData).zip(parsedData)
+        val output = master + "/hzl/output/cluster"
+        resRDD.saveAsTextFile(output)
+        SparkObj.ctx.stop()
+    }
 
     def km(data: RDD[Vector]) = {
         //聚类
         logger.info("set the num of classes is 2, start computer...")
-        var clu = KMeans.train(data, 2, ConfigKM.numIter, ConfigKM.runs)
+        var clu = KMeans.train(data, 3, ConfigKM.numIter, ConfigKM.runs)
         //代价
         //        var sse = clu.computeCost(data)
         //        logger.info("compute sse,the target function cost is:" + sse)
