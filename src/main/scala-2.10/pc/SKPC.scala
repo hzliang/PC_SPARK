@@ -53,9 +53,9 @@ object SKPC {
         f.saveas("lines.png")
     }
 
-    val lines = (data: DenseMatrix[Double]) => {
-        MatrixUtil.matrix2String(extractPC(data))
-    }
+//    val lines = (data: DenseMatrix[Double]) => {
+//        MatrixUtil.matrix2String(extractPC(data))
+//    }
 
     def extractPC(data: DenseMatrix[Double]) = {
         logger.info("******start compute principal curves...******")
