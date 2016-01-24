@@ -19,8 +19,7 @@ object Run {
         val dataRDD = SparkObj.ctx.textFile(input).map(s => {
                 Vectors.dense(s.split(',').map(_.toDouble))
             }).cache()
-        val clusObj = KM.km(dataRDD)
-        val clusRDD = clusObj.predict(dataRDD).zip(dataRDD)
+        val clusRDD =  KM.km(dataRDD).predict(dataRDD).zip(dataRDD)
         val allLines = clusRDD.groupByKey.map(v => {
             val data = v._2.toArray
             val dataMat = DenseMatrix.zeros[Double](data.length, 2)
