@@ -5,11 +5,11 @@ import kmeans.KM
 import org.apache.spark.mllib.linalg.Vectors
 import pc.{PCUtil, SKPC}
 import spark.SparkObj
-import util.VectorUtil
+import util.{MatrixUtil, VectorUtil}
 
 /**
-  * Created by ad on 2016/1/23.
-  */
+ * Created by ad on 2016/1/23.
+ */
 object Run {
 
     def main(args: Array[String]) {
@@ -30,7 +30,7 @@ object Run {
         }).reduce(DenseMatrix.horzcat(_, _))
         //输出结果
         println("The original lines are:")
-        println(allLines)
+        println(MatrixUtil.matrix2String(allLines))
         println("The linked lines are:")
         println(VectorUtil.vector2String(PCUtil.linkLines(allLines)))
     }
