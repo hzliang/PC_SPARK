@@ -135,8 +135,8 @@ object SKPC {
                 k += 1
                 val XS = MatrixUtil.getAdjustPoint(data, adjPointIndex)
                 cent = MatrixUtil.matrixMean(XS, Orie.Vert)
-                val tmpXS = XS - VectorUtil.vectorRep(cent, XS.rows, Orie.Vert)
-                pca = MatrixUtil.matrixFirstPCA(tmpXS)
+                val diffXS = XS - VectorUtil.vectorRep(cent, XS.rows, Orie.Vert)
+                pca = MatrixUtil.matrixFirstPCA(diffXS)
                 eigenVal = pca._1
                 eigenVec = pca._2
                 eigenVec :*= (ConfigPC.f * math.sqrt(eigenVal))
