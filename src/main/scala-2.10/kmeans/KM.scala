@@ -15,13 +15,13 @@ object KM {
 
     def main(args: Array[String]) {
         val master = "hdfs://192.168.1.121:9000"
-        val input = master + "/hzl/input/cros3.csv"
+        val input = master + args(0) //"/hzl/input/cros3.csv"
         val data = SparkObj.ctx.textFile(input)
         val parsedData = data.map(s => Vectors.dense(s.split(',').map(_
             .toDouble))).cache()
         val clus = km(parsedData)
         val resRDD = clus.predict(parsedData).zip(parsedData)
-        val output = master + "/hzl/output/cluster"
+        val output = master + args(1) //"/hzl/output/cluster"
         resRDD.saveAsTextFile(output)
         SparkObj.ctx.stop()
     }
