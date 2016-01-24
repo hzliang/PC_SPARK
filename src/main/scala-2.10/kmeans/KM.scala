@@ -1,15 +1,14 @@
 package kmeans
 
 import org.apache.spark.mllib.clustering.KMeans
-import org.apache.spark.mllib.linalg.{Vector, Vectors}
+import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.rdd.RDD
 import org.slf4j.{Logger, LoggerFactory}
-import spark.SparkObj
 
 
 /**
-  * Created by ad on 2016/1/23.
-  */
+ * Created by ad on 2016/1/23.
+ */
 object KM {
     val logger: Logger = LoggerFactory.getLogger(KM.getClass)
 
@@ -28,24 +27,28 @@ object KM {
         logger.info("set the num of classes is 2, start computer...")
         var clu = KMeans.train(data, 2, ConfigKM.numIter, ConfigKM.runs)
         //代价
-        var sse = clu.computeCost(data)
-        logger.info("compute sse,the target function cost is:" + sse)
-        val acc = SparkObj.ctx.accumulator(sse, "kmsees")
-        var goon = true
-        for (i <- 3 until ConfigKM.max_clusters if goon) {
-            //聚类
-            logger.info("set the num of classes is " + i + ", start computer...")
-            clu = KMeans.train(data, i, ConfigKM.numIter, ConfigKM.runs)
-            //代价
-            sse = clu.computeCost(data)
-            logger.info("compute sse,the target function cost is:" + sse)
-            if (math.abs(acc.value - sse) <= 1) {
-                logger.info("compute over,the best num of classes is:" + i)
-                goon = false
-            }
-            //            println("Within Set Sum of Squared Errors = " + acc.value)
-            //            clusters
-        }
+        //        var sse = clu.computeCost(data)
+        //        logger.info("compute sse,the target function cost is:" + sse)
+        //        val acc = SparkObj.ctx.accumulator(sse, "kmsees")
+        //        var goon = true
+        //        for (i <- 3 until ConfigKM.max_clusters if goon) {
+        //            //聚类
+        //            logger.info("set the num of classes is " + i + ", start computer...")
+        //            clu = KMeans.train(data, i, ConfigKM.numIter, ConfigKM.runs)
+        //            //代价
+        //            sse = clu.computeCost(data)
+        //            logger.info("compute sse,the target function cost is:" + sse)
+        //            if (math.abs(acc.value - sse) <= 1) {
+        //                logger.info("compute over,the best num of classes is:" + i)
+        //                goon = false
+        //            }
+        //            //            println("Within Set Sum of Squared Errors = " + acc.value)
+        //            //            clusters
+        //        }
         clu
+    }
+
+    def bestClus(): Unit = {
+
     }
 }
