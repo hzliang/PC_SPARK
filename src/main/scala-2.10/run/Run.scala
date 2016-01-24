@@ -5,10 +5,11 @@ import kmeans.KM
 import org.apache.spark.mllib.linalg.Vectors
 import pc.{PCUtil, SKPC}
 import spark.SparkObj
+import util.VectorUtil
 
 /**
- * Created by ad on 2016/1/23.
- */
+  * Created by ad on 2016/1/23.
+  */
 object Run {
 
     def main(args: Array[String]) {
@@ -27,6 +28,10 @@ object Run {
             }
             SKPC.extractPC(dataMat)
         }).reduce(DenseMatrix.horzcat(_, _))
-        println(PCUtil.linkLines(allLines))
+        //输出结果
+        println("The original lines are:")
+        println(allLines)
+        println("The linked lines are:")
+        println(VectorUtil.vector2String(PCUtil.linkLines(allLines)))
     }
 }
