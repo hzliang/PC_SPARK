@@ -23,3 +23,8 @@ sudo update-alternatives --config liblapack.so.3
 
 要维持当前值[*]请按回车键，或者键入选择的编号：1
 update-alternatives: using /usr/lib/atlas-base/atlas/libblas.so.3 to provide /usr/lib/libblas.so.3 (libblas.so.3) in 手动模式
+
+运行命令：
+spark-submit --class run.Run --master spark://192.168.1.121:7077  >
+--executor-memory 4G  --total-executor-cores 40 /root/pc_spark.jar >
+/hzl/input/sp_5p.csv  >> run_logs.txt
