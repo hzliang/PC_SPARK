@@ -383,7 +383,8 @@ object PCUtil {
       y(i, ::) := rest(minIndex(i))(i, ::) //
       y(i, 0) += newLinesLen(minIndex(i))
     }
-    (minValue, y, newLines)
+//    (minValue, y, newLines)
+    (minValue, y, lines)
   }
 
   /**
