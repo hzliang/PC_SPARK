@@ -133,7 +133,7 @@ object MatrixUtil {
             }
             str.replace(str.length - 1, str.length, ";\n")
         }
-        str.replace(str.length - 1, str.length, "]").toString
+        str.replace(str.length - 2, str.length, "]").toString
     }
 
     /**
