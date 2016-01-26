@@ -13,9 +13,9 @@ object ConfigPC {
 
   val iter_thresValue = math.exp(-19) //内部迭代停止
 
-  val iter_thresTimes = 1150 //内部迭代停止
+  val iter_thresTimes = 2150 //内部迭代停止
 
-  val lamba = 1.0 //the angle-penalty weighter
+  val lamba = 0.8 //the angle-penalty weighter
 
   val Infs = 1.0e-10 //定义一个小数
 
