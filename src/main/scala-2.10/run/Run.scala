@@ -29,14 +29,16 @@ object Run {
       for (i <- 0 until data.length) {
         dataMat(i, ::) := new DenseVector[Double](data(i).toArray).t
       }
-      SKPC.extractPC(dataMat)
-    }).reduce(DenseMatrix.horzcat(_, _))
+      //转成字符串返回，带固定结果
+      //shffle会需大量时间
+      MatrixUtil.matrix2String(SKPC.extractPC(dataMat), "reduce")
+    }).reduce(MatrixUtil.matrixPlus2String(_, _))
     //输出结果
-    println("the cluster result is:")
+    //    println("the cluster result is:")
     println(acc.value)
-    println("The original lines are:")
-    println(MatrixUtil.matrix2String(allLines))
-    println("The linked lines are:")
+    //    println("The original lines are:")
+    println(allLines)
+    //    println("The linked lines are:")
     println(VectorUtil.vector2String(PCUtil.linkLines(allLines)))
   }
 }
