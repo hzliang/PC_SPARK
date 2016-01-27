@@ -34,11 +34,12 @@ object Run {
       MatrixUtil.matrix2String(SKPC.extractPC(dataMat), "reduce")
     }).reduce(MatrixUtil.matrixPlus2String(_, _))
     //输出结果
-    //    println("the cluster result is:")
+    println("the cluster result is:")
     println(acc.value)
-    //    println("The original lines are:")
+    println("The original lines are:")
     println(allLines)
-    //    println("The linked lines are:")
-    println(VectorUtil.vector2String(PCUtil.linkLines(allLines)))
+    println("The linked lines are:")
+    println(VectorUtil.vector2String(
+      PCUtil.linkLines(MatrixUtil.matrixStr2Matrix(allLines))))
   }
 }

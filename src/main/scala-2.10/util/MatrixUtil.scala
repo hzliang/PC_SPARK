@@ -126,9 +126,10 @@ object MatrixUtil {
     * @return 字符串
     */
   def matrix2String(m: DenseMatrix[Double], optType: String = "matlab"): String = {
+    val str = new StringBuilder()
     optType.toLowerCase match {
       case "matlab" => {
-        val str = new StringBuilder("[")
+        str.append("[")
         for (i <- 0 until m.rows) {
           for (j <- 0 until m.cols) {
             str.append(m(i, j) + ",")
@@ -138,7 +139,6 @@ object MatrixUtil {
         str.replace(str.length - 2, str.length, "]").toString
       }
       case "reduce" => {
-        val str = new StringBuilder()
         for (i <- 0 until m.rows) {
           for (j <- 0 until m.cols) {
             str.append(m(i, j) + ",")
@@ -149,8 +149,8 @@ object MatrixUtil {
       }
       case _ => ""
     }
-
   }
+
 
   /**
     * 将两个字符串形式的矩阵相连
@@ -166,6 +166,28 @@ object MatrixUtil {
     sb.append(m1Str(0) + "," + m2Str(0) + "\n")
     sb.append(m1Str(1) + "," + m2Str(1))
     sb.toString
+  }
+
+  /**
+    * 将形成字符串的矩阵
+    * 转成矩阵数据结构
+    *
+    * @param m1
+    */
+  def matrixStr2Matrix(m1: String) = {
+    val rows = m1.split("\n")
+    val rowLen = rows.length
+    if (rowLen == 0) throw new RuntimeException("String matrix rows is not valide!!!")
+    val cols = rows(0).split(",")
+    val colsLen = cols.length
+    if (colsLen == 0) throw new RuntimeException("String matrix cols is not valide!!!")
+    val m = DenseMatrix.zeros[Double](rowLen, colsLen)
+    for (i <- 0 until rowLen) {
+      val elem = rows(i).split(",")
+      if (elem.length != colsLen) throw new RuntimeException("String matrix cols is not equal!!!")
+      m(i, ::) := new DenseVector[Double](elem.map(_.toDouble)).t
+    }
+    m
   }
 
   /**

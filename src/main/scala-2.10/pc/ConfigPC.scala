@@ -13,7 +13,7 @@ object ConfigPC {
 
   val iter_thresValue = math.exp(-19) //内部迭代停止
 
-  val iter_thresTimes = 2150 //内部迭代停止
+  val iter_thresTimes = 1150 //内部迭代停止
 
   val lamba = 0.8 //the angle-penalty weighter
 
@@ -21,7 +21,7 @@ object ConfigPC {
 
   val Infb = Double.MinValue //定义一个小数
 
-  var sigma = 0.03 //点横向方差
+  var sigma = 0.06 //点横向方差
 
   def alpha = 2 * math.pow(sigma, 2) // 2*(d-1)*sigma^2 the smoothing parameter
 }
