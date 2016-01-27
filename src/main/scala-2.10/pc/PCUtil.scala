@@ -383,7 +383,7 @@ object PCUtil {
       y(i, ::) := rest(minIndex(i))(i, ::) //
       y(i, 0) += newLinesLen(minIndex(i))
     }
-//    (minValue, y, newLines)
+    //    (minValue, y, newLines)
     (minValue, y, lines)
   }
 
@@ -452,4 +452,17 @@ object PCUtil {
     (adjoinLinesArc, adjoinLinesLen)
   }
 
+  /**
+    * 去掉最后线段中的平行线段
+    * 当做过拟合处理
+    * 思想：
+    * 当线段的起点 重点 断电 到另一条线的距离相差不大
+    * 且距离为[-1.5sigma,1.5sigma],则合并这两条线，取中心线段
+    * 长度为长线段的长度
+    *
+    * @param lines
+    */
+  def filterParallelLines(lines: DenseMatrix[Double]) = {
+    lines
+  }
 }
