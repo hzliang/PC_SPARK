@@ -465,4 +465,14 @@ object PCUtil {
   def filterParallelLines(lines: DenseMatrix[Double]) = {
     lines
   }
+
+  /**
+    * 合并多个类聚类完成后，分类临界位置
+    * 提取到的局部主成分线的点
+    * @param lines
+    * @return
+    */
+  def mergeCriticalPoint(lines: DenseMatrix[Double]) = {
+    lines
+  }
 }
