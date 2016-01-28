@@ -1,4 +1,5 @@
 import breeze.linalg.{DenseVector, DenseMatrix}
+import pc.PCUtil
 import util.MatrixUtil
 
 /**
@@ -14,7 +15,10 @@ object Test {
     //    val m1 = DenseMatrix.zeros[Double](2, 2)
     //    val m2 = DenseMatrix.zeros[Double](2, 2)
     //    print(MatrixUtil.matrix2String(m2, "matlab"))
-    val m = "1,2\n"
-    print(MatrixUtil.matrixStr2Matrix(m))
+    val v1 = DenseVector[Double](2, 2)
+    val v2 = DenseVector[Double](1, 1)
+    val m = new DenseMatrix[Double](2, 2, Array(-1.0, -0.0,1.0,1.0))
+    val dis = PCUtil.line2LineProDist(v1, v2, m)
+    println(dis)
   }
 }
