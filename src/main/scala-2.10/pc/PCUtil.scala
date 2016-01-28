@@ -536,45 +536,81 @@ object PCUtil {
 			j = 0
 			sidePos.clear( )
 			sideNeg.clear( )
+			//其余线段端点到判断的线的距离
 			val (dist, side) = line2LineProDist( lines( ::, 2 * i ), lines( ::, 2 * i + 1 ), lines( ::, 2 * ( i + 1 )
 				to -1 ) )
+			//将线分两侧存储
 			while ( j < dist.length - 1 ) {
 				if ( dist( j ) <= ConfigPC.sigma && dist( j + 1 ) <= ConfigPC.sigma ) {
 					k = j + 1
+					//选择线端点最近的
 					if ( dist( j ) < dist( j + 1 ) ) {
 						k = j
 					}
+					//正负两侧
 					if ( side( k ) <= 0 ) {
 						sideNeg += ( j -> side( k ) )
 					} else {
 						sidePos += ( j -> side( k ) )
 					}
 				}
+				j += 2
 			}
-			j += 2
-		}
 
-		//合并并行线段
-		if ( !sideNeg.isEmpty && sidePos.isEmpty ) {
-			val maxInfo = sideNeg.maxBy( _._2 )
-			//平移到中间点
+			//合并并行线段
+			if ( !sideNeg.isEmpty && sidePos.isEmpty ) {
+				val maxInfo = sideNeg.maxBy( _._2 )
+				//平移到中间点
+				shiftLine( lines, i, i, maxInfo._1 )
+			} else if ( sideNeg.isEmpty && !sidePos.isEmpty ) {
+				//合并并行线段
+				val maxInfo = sidePos.maxBy( _._2 )
+				shiftLine( lines, i, i, maxInfo._1 )
+			} else if ( !sideNeg.isEmpty && !sidePos.isEmpty ) {
+				//合并并行线段
+				val maxNegInfo = sideNeg.maxBy( _._2 )
+				val maxPosInfo = sidePos.maxBy( _._2 )
+				shiftLine( lines, i, maxNegInfo._1, maxPosInfo._1 )
+			}
 
-		} else if ( sideNeg.isEmpty && !sidePos.isEmpty ) {
-			//合并并行线段
-			val maxInfo = sidePos.maxBy( _._2 )
-		}
-		else if ( !sideNeg.isEmpty && !sidePos.isEmpty ) {
-			//合并并行线段
-			val maxNegInfo = sideNeg.maxBy( _._2 )
-			val maxPosInfo = sidePos.maxBy( _._2 )
+			i += 1
 		}
 		lines
 	}
 
 	/**
 		* 平移线段
+		*
+		* @param lines
+		* @param chIndex0
+		* @param chIndex1
+		* @param chIndex2
+		* @return
 		*/
-	def shiftLine( ) = {
+	def shiftLine(
+		             lines: DenseMatrix[ Double ], chIndex0: Int, chIndex1: Int,
+		             chIndex2: Int
+	             ) = {
+		//计算两条线的中点
+		val md1 = MatrixUtil.matrixMean( lines( ::, 2 * chIndex1 to 2 * chIndex1 + 1 ), Orie.Horz )
+		val md2 = MatrixUtil.matrixMean( lines( ::, 2 * chIndex2 to 2 * chIndex2 + 1 ), Orie.Horz )
+		val middle = md1 + md2
+		middle :/= 2.0
+		//平移线段，使其过中点
+		lines( ::, 2 * chIndex0 ) := middle - ( lines( ::, 2 * chIndex0 ) :/ 2.0 )
+		lines( ::, 2 * chIndex0 + 1 ) := middle + ( lines( ::, 2 * chIndex0 + 1 ) / 2.0 )
+		lines.delete( 2 * chIndex1, Axis._1 )
+		lines.delete( 2 * chIndex1 + 1, Axis._1 )
+		lines.delete( 2 * chIndex2, Axis._1 )
+		lines.delete( 2 * chIndex2 + 1, Axis._1 )
+	}
+
+	/**
+		* 找到两条线段距离相等的点
+		*
+		* @param line
+		*/
+	def equalMidVer( line: DenseMatrix[ Double ] ) = {
 
 	}
 
