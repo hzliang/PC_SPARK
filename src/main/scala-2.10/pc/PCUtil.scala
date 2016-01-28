@@ -12,16 +12,16 @@ import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
 /**
-  * Created by hu on 2015/12/3.
-  */
+	* Created by hu on 2015/12/3.
+	*/
 object PCUtil {
 	/**
-	  * 计算数据点到一组线的距离
-	  *
-	  * @param bathLines 数组：矩阵存储这组线
-	  * @param data      数据
-	  * @return 距离 投影长度 投影点
-	  */
+		* 计算数据点到一组线的距离
+		*
+		* @param bathLines 数组：矩阵存储这组线
+		* @param data      数据
+		* @return 距离 投影长度 投影点
+		*/
 	def bathDistPro( bathLines: DenseMatrix[ Double ], data: DenseMatrix[ Double ] )
 	: immutable.IndexedSeq[ (DenseVector[ Double ], DenseVector[ Double ], DenseMatrix[ Double ]) ] = {
 		val lineCount = bathLines.cols / 2
@@ -29,13 +29,13 @@ object PCUtil {
 	}
 
 	/**
-	  * 计算数据点到线的平方投影距离
-	  * 平方
-	  *
-	  * @param strPoLine 起点
-	  * @param endPoLine 终点
-	  * @param data      数据
-	  */
+		* 计算数据点到线的平方投影距离
+		* 平方
+		*
+		* @param strPoLine 起点
+		* @param endPoLine 终点
+		* @param data      数据
+		*/
 	def distPro(
 		           strPoLine: DenseVector[ Double ], endPoLine: DenseVector[ Double ]
 		           , data: DenseMatrix[ Double ]
@@ -64,12 +64,12 @@ object PCUtil {
 	}
 
 	/**
-	  * 读取数据
-	  *
-	  * @param csvPath
-	  * @param propCount
-	  * @return
-	  */
+		* 读取数据
+		*
+		* @param csvPath
+		* @param propCount
+		* @return
+		*/
 	def csv2Mat( csvPath: String, propCount: Int ): DenseMatrix[ Double ] = {
 		val data = Source.fromFile( csvPath ).getLines( ).toArray
 		val lineCount = data.length
@@ -84,12 +84,12 @@ object PCUtil {
 	}
 
 	/**
-	  * 将矩阵保持为csv文件
-	  * 一行为一个点
-	  *
-	  * @param csvPath
-	  * @param lines
-	  */
+		* 将矩阵保持为csv文件
+		* 一行为一个点
+		*
+		* @param csvPath
+		* @param lines
+		*/
 	def mat2csv( csvPath: String, lines: DenseMatrix[ Double ] ) = {
 		val f = new File( csvPath )
 		val fw = new FileWriter( f )
@@ -100,11 +100,11 @@ object PCUtil {
 	}
 
 	/**
-	  * 构建哈密顿路径连接方式
-	  *
-	  * @param lines 线段
-	  * @return 连接方式
-	  */
+		* 构建哈密顿路径连接方式
+		*
+		* @param lines 线段
+		* @return 连接方式
+		*/
 	def linkLines( lines: DenseMatrix[ Double ] ) = {
 		val lineCount = lines.cols / 2
 		var linkArr = new ArrayBuffer[ DenseVector[ Int ] ]( )
@@ -228,13 +228,13 @@ object PCUtil {
 	}
 
 	/**
-	  * 将符合条件的连接连段连起来
-	  *
-	  * @param linkArr 已连接的连段
-	  * @param newLink 线加入的线段 对该线段和以前的连接
-	  * @param start   从以前的那条线段开始比较
-	  * @return
-	  */
+		* 将符合条件的连接连段连起来
+		*
+		* @param linkArr 已连接的连段
+		* @param newLink 线加入的线段 对该线段和以前的连接
+		* @param start   从以前的那条线段开始比较
+		* @return
+		*/
 	def cirLink( linkArr: ArrayBuffer[ DenseVector[ Int ] ], newLink: DenseVector[ Int ], start: Int ): DenseVector[
 		Int ] = {
 		if ( !linkArr.isEmpty && start < linkArr.length ) {
@@ -251,12 +251,12 @@ object PCUtil {
 	}
 
 	/**
-	  * 按顺序连接连接点
-	  *
-	  * @param oldLink
-	  * @param newLink
-	  * @return
-	  */
+		* 按顺序连接连接点
+		*
+		* @param oldLink
+		* @param newLink
+		* @return
+		*/
 	def link( oldLink: DenseVector[ Int ], newLink: DenseVector[ Int ] ) = {
 		val f = find( oldLink, newLink ) //(2,3,-1,-1)
 		val found = f.findAll( _ != -1 ) //(0,1)
@@ -287,12 +287,12 @@ object PCUtil {
 	}
 
 	/**
-	  * 查找
-	  *
-	  * @param oldLink
-	  * @param newLink
-	  * @return
-	  */
+		* 查找
+		*
+		* @param oldLink
+		* @param newLink
+		* @return
+		*/
 	def find( oldLink: DenseVector[ Int ], newLink: DenseVector[ Int ] ) = {
 		val re = DenseVector.zeros[ Int ]( newLink.length )
 		newLink.foreachPair( ( k, v ) => {
@@ -307,14 +307,14 @@ object PCUtil {
 	}
 
 	/**
-	  * 求两条线连接连接的距离
-	  *
-	  * @param strPoLine1
-	  * @param endPoLine1
-	  * @param strPoLine2
-	  * @param endPoLine2
-	  * @return
-	  */
+		* 求两条线连接连接的距离
+		*
+		* @param strPoLine1
+		* @param endPoLine1
+		* @param strPoLine2
+		* @param endPoLine2
+		* @return
+		*/
 	def edgeLen(
 		           strPoLine1: DenseVector[ Double ], endPoLine1: DenseVector[ Double ],
 		           strPoLine2: DenseVector[ Double ], endPoLine2: DenseVector[ Double ]
@@ -333,17 +333,17 @@ object PCUtil {
 	}
 
 	/**
-	  * 求两条线断点连接形成的夹角
-	  * 假设这两条线的端点编号为：0 1 2 3，
-	  * 这求得夹角为0-2 0-3 1-2 1-3
-	  * 夹角大小为沿着逆时针的方向
-	  *
-	  * @param strPoLine1
-	  * @param endPoLine1
-	  * @param strPoLine2
-	  * @param endPoLine2
-	  * @return
-	  */
+		* 求两条线断点连接形成的夹角
+		* 假设这两条线的端点编号为：0 1 2 3，
+		* 这求得夹角为0-2 0-3 1-2 1-3
+		* 夹角大小为沿着逆时针的方向
+		*
+		* @param strPoLine1
+		* @param endPoLine1
+		* @param strPoLine2
+		* @param endPoLine2
+		* @return
+		*/
 	def edgeAr(
 		          strPoLine1: DenseVector[ Double ], endPoLine1: DenseVector[ Double ],
 		          strPoLine2: DenseVector[ Double ], endPoLine2: DenseVector[ Double ]
@@ -366,13 +366,13 @@ object PCUtil {
 	}
 
 	/**
-	  * 将点转成投影长度
-	  *
-	  * @param lines
-	  * @param link
-	  * @param data
-	  * @return
-	  */
+		* 将点转成投影长度
+		*
+		* @param lines
+		* @param link
+		* @param data
+		* @return
+		*/
 	def map2Acrl(
 		            lines: DenseMatrix[ Double ], link: DenseVector[ Int ],
 		            data: DenseMatrix[ Double ]
@@ -400,11 +400,11 @@ object PCUtil {
 	}
 
 	/**
-	  * 通过已给的信息求线段长度及线段
-	  *
-	  * @param lines
-	  * @param link
-	  */
+		* 通过已给的信息求线段长度及线段
+		*
+		* @param lines
+		* @param link
+		*/
 	def getIndexedSeg( lines: DenseMatrix[ Double ], link: DenseVector[ Int ] ) = {
 		val lineCount = lines.cols / 2
 		if ( lineCount != 1 ) {
@@ -432,23 +432,23 @@ object PCUtil {
 	}
 
 	/**
-	  * 求线连接的代价
-	  * 每一条线与另外一条线有四个连接代价
-	  * m的存储方法如下：
-	  * 每个数字代表线的编号
-	  * 每个对应关系产生四个代价
-	  * 分别是四个不同的连接方式
-	  * m是一个对称矩阵，每根线的连接代价占用四个元素
-	  * 0-0 0-1 0-2 0-3 0-4
-	  * 1-0 1-1 1-2 1-3 1-4
-	  * 2-0 2-1 2-2 2-3 2-4
-	  * 3-0 3-1 3-2 3-3 3-4
-	  * 4-0 4-1 4-2 4-3 4-4
-	  * 0-2 0-3 1-2 1-3
-	  *
-	  * @param lines 线段矩阵
-	  * @return
-	  */
+		* 求线连接的代价
+		* 每一条线与另外一条线有四个连接代价
+		* m的存储方法如下：
+		* 每个数字代表线的编号
+		* 每个对应关系产生四个代价
+		* 分别是四个不同的连接方式
+		* m是一个对称矩阵，每根线的连接代价占用四个元素
+		* 0-0 0-1 0-2 0-3 0-4
+		* 1-0 1-1 1-2 1-3 1-4
+		* 2-0 2-1 2-2 2-3 2-4
+		* 3-0 3-1 3-2 3-3 3-4
+		* 4-0 4-1 4-2 4-3 4-4
+		* 0-2 0-3 1-2 1-3
+		*
+		* @param lines 线段矩阵
+		* @return
+		*/
 	private def cmpJoinCost( lines: DenseMatrix[ Double ] ) = {
 		val lineCount = lines.cols / 2
 		val adjoinLinesLen = DenseMatrix.zeros[ Double ]( lineCount, 4 * lineCount )
@@ -467,13 +467,13 @@ object PCUtil {
 	}
 
 	/**
-	  * 计算数据点到线的平方投影距离
-	  * 平方
-	  *
-	  * @param strPoLine 起点
-	  * @param endPoLine 终点
-	  * @param data      数据
-	  */
+		* 计算数据点到线的平方投影距离
+		* 平方
+		*
+		* @param strPoLine 起点
+		* @param endPoLine 终点
+		* @param data      数据
+		*/
 	def line2LineProDist(
 		                    strPoLine: DenseVector[ Double ], endPoLine: DenseVector[ Double ]
 		                    , data: DenseMatrix[ Double ]
@@ -504,15 +504,15 @@ object PCUtil {
 
 
 	/**
-	  * 去掉最后线段中的平行线段
-	  * 当做过拟合处理
-	  * 思想：
-	  * 当线段的起点 重点 断电 到另一条线的距离相差不大
-	  * 且距离为[-1.5sigma,1.5sigma],则合并这两条线，取中心线段
-	  * 长度为长线段的长度
-	  *
-	  * @param lines
-	  */
+		* 去掉最后线段中的平行线段
+		* 当做过拟合处理
+		* 思想：
+		* 当线段的起点 重点 断电 到另一条线的距离相差不大
+		* 且距离为[-1.5sigma,1.5sigma],则合并这两条线，取中心线段
+		* 长度为长线段的长度
+		*
+		* @param lines
+		*/
 	def filterPllLines( lines: DenseMatrix[ Double ] ) = {
 		//先按线的长度进行排序
 		val lineCount = lines.cols / 2
@@ -572,19 +572,19 @@ object PCUtil {
 	}
 
 	/**
-	  * 平移线段
-	  */
+		* 平移线段
+		*/
 	def shiftLine( ) = {
 
 	}
 
 	/**
-	  * 合并多个类聚类完成后，分类临界位置
-	  * 提取到的局部主成分线的点
-	  *
-	  * @param lines
-	  * @return
-	  */
+		* 合并多个类聚类完成后，分类临界位置
+		* 提取到的局部主成分线的点
+		*
+		* @param lines
+		* @return
+		*/
 	def mergeCriticalPoint( lines: DenseMatrix[ Double ] ) = {
 		lines
 	}
