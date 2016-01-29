@@ -571,13 +571,13 @@ object PCUtil {
     var chIndex2 = 0
     if (!sideNeg.isEmpty && sidePos.isEmpty) {
       val maxInfo = sideNeg.maxBy(_._2)
-      chIndex1 = currLineIndex
+      chIndex1 = 2 * currLineIndex
       chIndex2 = maxInfo._1
       //平移到中间点
     } else if (sideNeg.isEmpty && !sidePos.isEmpty) {
       //合并并行线段
       val maxInfo = sidePos.maxBy(_._2)
-      chIndex1 = currLineIndex
+      chIndex1 = 2 * currLineIndex
       chIndex2 = maxInfo._1
     } else if (!sideNeg.isEmpty && !sidePos.isEmpty) {
       //合并并行线段
