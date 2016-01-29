@@ -466,10 +466,8 @@ object PCUtil {
     * @param endPoLine 终点
     * @param data      数据
     */
-  def line2LineProDist(
-                        strPoLine: DenseVector[Double], endPoLine: DenseVector[Double]
-                        , data: DenseMatrix[Double]
-                      )
+  def line2LineProDist(strPoLine: DenseVector[Double], endPoLine: DenseVector[Double]
+                       , data: DenseMatrix[Double])
   : Tuple2[DenseVector[Double], DenseVector[Double]] = {
     //将线的点转成向量表示法
     val lineVector: DenseVector[Double] = endPoLine - strPoLine
