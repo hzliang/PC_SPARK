@@ -20,7 +20,7 @@ case class Line(start: DenseVector[Double], end: DenseVector[Double]) extends Or
 
   override def compare(that: Line): Int = {
     val diff = norm(start - end) - norm(that.start - that.end)
-    if (diff > 0) 1 else if (diff < 0) -1 else 0
+    if (diff > 0) -1 else if (diff < 0) 1 else 0
   }
 
 //  def unapply(start: DenseVector[Double], end: DenseVector[Double]) = DenseVector.horzcat(start, end)
