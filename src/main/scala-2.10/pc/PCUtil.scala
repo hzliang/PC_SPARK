@@ -36,10 +36,8 @@ object PCUtil {
     * @param endPoLine 终点
     * @param data      数据
     */
-  def distPro(
-               strPoLine: DenseVector[Double], endPoLine: DenseVector[Double]
-               , data: DenseMatrix[Double]
-             )
+  def distPro(strPoLine: DenseVector[Double], endPoLine: DenseVector[Double]
+              , data: DenseMatrix[Double])
   : Tuple3[DenseVector[Double], DenseVector[Double], DenseMatrix[Double]] = {
     //将线的点转成向量表示法
     val lineVector: DenseVector[Double] = endPoLine - strPoLine
@@ -289,8 +287,8 @@ object PCUtil {
   /**
     * 查找
     *
-    * @param oldLink
-    * @param newLink
+    * @param oldLink 上次以合并的 已经被保持在数组里
+    * @param newLink 新获得的线段 需要合并的
     * @return
     */
   def find(oldLink: DenseVector[Int], newLink: DenseVector[Int]) = {
@@ -309,16 +307,14 @@ object PCUtil {
   /**
     * 求两条线连接连接的距离
     *
-    * @param strPoLine1
-    * @param endPoLine1
-    * @param strPoLine2
-    * @param endPoLine2
-    * @return
+    * @param strPoLine1 线一起点
+    * @param endPoLine1 线一终点
+    * @param strPoLine2 线二起点
+    * @param endPoLine2 线二终点
+    * @return 长度
     */
-  def edgeLen(
-               strPoLine1: DenseVector[Double], endPoLine1: DenseVector[Double],
-               strPoLine2: DenseVector[Double], endPoLine2: DenseVector[Double]
-             ) = {
+  def edgeLen(strPoLine1: DenseVector[Double], endPoLine1: DenseVector[Double],
+              strPoLine2: DenseVector[Double], endPoLine2: DenseVector[Double]) = {
     //0-1 0-1
     //0 -0
     val l0 = VectorUtil.edPowDistance(strPoLine1, strPoLine2)
@@ -338,16 +334,14 @@ object PCUtil {
     * 这求得夹角为0-2 0-3 1-2 1-3
     * 夹角大小为沿着逆时针的方向
     *
-    * @param strPoLine1
-    * @param endPoLine1
-    * @param strPoLine2
-    * @param endPoLine2
-    * @return
+    * @param strPoLine1 线一起点
+    * @param endPoLine1 线一终点
+    * @param strPoLine2 线二起点
+    * @param endPoLine2 线二终点
+    * @return 弧度
     */
-  def edgeAr(
-              strPoLine1: DenseVector[Double], endPoLine1: DenseVector[Double],
-              strPoLine2: DenseVector[Double], endPoLine2: DenseVector[Double]
-            ) = {
+  def edgeAr(strPoLine1: DenseVector[Double], endPoLine1: DenseVector[Double],
+             strPoLine2: DenseVector[Double], endPoLine2: DenseVector[Double]) = {
     //0-1 0-1
     //0 -0
     val a00 = VectorUtil.arc(strPoLine1 - endPoLine1, strPoLine2 - strPoLine1) +
@@ -368,15 +362,13 @@ object PCUtil {
   /**
     * 将点转成投影长度
     *
-    * @param lines
-    * @param link
-    * @param data
+    * @param lines 所有的线
+    * @param link  线的链接方式
+    * @param data  所有数据点
     * @return
     */
-  def map2Acrl(
-                lines: DenseMatrix[Double], link: DenseVector[Int],
-                data: DenseMatrix[Double]
-              ) = {
+  def map2Acrl(lines: DenseMatrix[Double], link: DenseVector[Int],
+               data: DenseMatrix[Double]) = {
     val (newLines, newLinesLen) = getIndexedSeg(lines, link)
     val allProDis = DenseMatrix.zeros[Double](data.rows, newLines.cols / 2)
     val rest = new ArrayBuffer[DenseMatrix[Double]]()
@@ -402,8 +394,8 @@ object PCUtil {
   /**
     * 通过已给的信息求线段长度及线段
     *
-    * @param lines
-    * @param link
+    * @param lines 所有线段
+    * @param link  连接方式
     */
   def getIndexedSeg(lines: DenseMatrix[Double], link: DenseVector[Int]) = {
     val lineCount = lines.cols / 2
@@ -519,7 +511,7 @@ object PCUtil {
     val lineCount = linesBak.cols / 2
     val lenSorted = new TreeSet[Line]()
     for (i <- 0 until lineCount) {
-      lenSorted += Line(linesBak(::, 2 * i), linesBak(::, 2 * i + 1))
+      lenSorted += Line(linesBak(::, 2 * i).copy, linesBak(::, 2 * i + 1).copy)
     }
     var i = 0
     lenSorted.foreach(v => {
@@ -572,7 +564,7 @@ object PCUtil {
     * @param sideNeg       一侧线
     * @param sidePos       另一侧
     * @param currLineIndex 当前判断的线
-    * @return
+    * @return 移动后的线段矩阵
     */
   def shiftLine(lines: DenseMatrix[Double], sideNeg: mutable.HashMap[Int, Double],
                 sidePos: mutable.HashMap[Int, Double], currLineIndex: Int) = {
@@ -598,9 +590,10 @@ object PCUtil {
     }
 
     //计算两条线的中点
-    val md1 = MatrixUtil.matrixMean(lines(::, chIndex1 to chIndex1 + 1), Orie.Horz)
-    val md2 = MatrixUtil.matrixMean(lines(::, chIndex2 to chIndex2 + 1), Orie.Horz)
-    val middle: DenseVector[Double] = (md1 + md2) :/ 2.0
+    //    val md1 = MatrixUtil.matrixMean(lines(::, chIndex1 to chIndex1 + 1), Orie.Horz)
+    //    val md2 = MatrixUtil.matrixMean(lines(::, chIndex2 to chIndex2 + 1), Orie.Horz)
+    //    val middle: DenseVector[Double] = (md1 + md2) :/ 2.0
+    val middle = findShiftPoint(lines, chIndex1, chIndex2)
     //平移线段，使其过中点
     val tmp = (lines(::, 2 * currLineIndex + 1) - lines(::, 2 * currLineIndex)) :/ 2.0
     lines(::, 2 * currLineIndex) := middle - tmp
@@ -619,12 +612,18 @@ object PCUtil {
   }
 
   /**
-    * 找到两条线段距离相等的点
+    * 找线中点连线的中点
+    * ---找到两条线段距离相等的点
     *
-    * @param line
+    * @param lines    线
+    * @param chIndex1 第一条线的起点
+    * @param chIndex2 第二条线的起点
+    * @return 中点向量
     */
-  def equalMidVer(line: DenseMatrix[Double]) = {
-
+  def findShiftPoint(lines: DenseMatrix[Double], chIndex1: Int, chIndex2: Int)
+  : DenseVector[Double] = {
+    (MatrixUtil.matrixMean(lines(::, chIndex1 to chIndex1 + 1), Orie.Horz) +
+      MatrixUtil.matrixMean(lines(::, chIndex2 to chIndex2 + 1), Orie.Horz)) :/ 2.0
   }
 
   /**
