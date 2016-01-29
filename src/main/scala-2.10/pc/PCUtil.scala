@@ -6,7 +6,7 @@ import breeze.linalg._
 import spark.Line
 import util.{MatrixUtil, Orie, VectorUtil}
 
-import scala.collection.{immutable, mutable}
+import scala.collection.{mutable, immutable}
 import scala.collection.mutable.{TreeSet, IndexedSeq}
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
@@ -498,8 +498,8 @@ object PCUtil {
     val vecPro: DenseMatrix[Double] = data.t - pointPro
     //求数据点到投影点的长度值
     val vecProLenSqu = vecPro :* vecPro //行 列
-    (MatrixUtil.matrixSum(vecProLenSqu, Orie.Horz), indexPro, pointPro)
-    (MatrixUtil.matrixSum(vecProLenSqu, Orie.Horz), vecPro(1, ::).t)
+    //    (MatrixUtil.matrixSum(vecProLenSqu, Orie.Horz), indexPro, pointPro)
+    (MatrixUtil.matrixSum(vecProLenSqu, Orie.Horz), vecPro(::, 1))
   }
 
 
@@ -513,18 +513,19 @@ object PCUtil {
     *
     * @param lines
     */
-  def filterPllLines(lines: DenseMatrix[Double]) = {
+  def filterPllLines(lines: DenseMatrix[Double], pllThres: Double) = {
     //先按线的长度进行排序
-    val lineCount = lines.cols / 2
+    var linesBak = lines.copy
+    val lineCount = linesBak.cols / 2
     val sortByLen = new TreeSet[Line]()
     for (i <- 0 until lineCount) {
-      sortByLen += Line(lines(::, 2 * i), lines(::, 2 * i + 1))
+      sortByLen += Line(linesBak(::, 2 * i), linesBak(::, 2 * i + 1))
     }
     var i = 0
     sortByLen.foreach(v => {
-      lines(::, i) := v.start
-      lines(::, i + 1) := v.end
-      i += 1
+      linesBak(::, i) := v.start
+      linesBak(::, i + 1) := v.end
+      i += 2
     })
 
     var j = 0
@@ -532,16 +533,16 @@ object PCUtil {
     val sideNeg = new mutable.HashMap[Int, Double]()
     val sidePos = new mutable.HashMap[Int, Double]()
     i = 0
-    while (i < lines.cols / 2) {
+    while (i < linesBak.cols / 2 - 1) {
       j = 0
       sidePos.clear()
       sideNeg.clear()
       //其余线段端点到判断的线的距离
-      val (dist, side) = line2LineProDist(lines(::, 2 * i), lines(::, 2 * i + 1), lines(::, 2 * (i + 1)
-        to -1))
+      val (dist, side) = line2LineProDist(linesBak(::, 2 * i), linesBak(::, 2 * i + 1),
+        linesBak(::, 2 * (i + 1) to -1))
       //将线分两侧存储
       while (j < dist.length - 1) {
-        if (dist(j) <= ConfigPC.sigma && dist(j + 1) <= ConfigPC.sigma) {
+        if (dist(j) <= pllThres && dist(j + 1) <= pllThres) {
           k = j + 1
           //选择线端点最近的
           if (dist(j) < dist(j + 1)) {
@@ -549,58 +550,72 @@ object PCUtil {
           }
           //正负两侧
           if (side(k) <= 0) {
-            sideNeg += (j -> side(k))
+            sideNeg += ((2 * (i + 1) + j) -> side(k))
           } else {
-            sidePos += (j -> side(k))
+            sidePos += ((2 * (i + 1) + j) -> side(k))
           }
         }
         j += 2
       }
-
-      //合并并行线段
-      if (!sideNeg.isEmpty && sidePos.isEmpty) {
-        val maxInfo = sideNeg.maxBy(_._2)
-        //平移到中间点
-        shiftLine(lines, i, i, maxInfo._1)
-      } else if (sideNeg.isEmpty && !sidePos.isEmpty) {
-        //合并并行线段
-        val maxInfo = sidePos.maxBy(_._2)
-        shiftLine(lines, i, i, maxInfo._1)
-      } else if (!sideNeg.isEmpty && !sidePos.isEmpty) {
-        //合并并行线段
-        val maxNegInfo = sideNeg.maxBy(_._2)
-        val maxPosInfo = sidePos.maxBy(_._2)
-        shiftLine(lines, i, maxNegInfo._1, maxPosInfo._1)
-      }
+      linesBak = shiftLine(linesBak, sideNeg, sidePos, i)
 
       i += 1
     }
-    lines
+    linesBak
   }
 
   /**
     * 平移线段
     *
-    * @param lines
-    * @param chIndex0
-    * @param chIndex1
-    * @param chIndex2
+    * @param lines         所有线
+    * @param sideNeg       一侧线
+    * @param sidePos       另一侧
+    * @param currLineIndex 当前判断的线
     * @return
     */
-  def shiftLine(lines: DenseMatrix[Double], chIndex0: Int, chIndex1: Int,
-                chIndex2: Int) = {
+  def shiftLine(lines: DenseMatrix[Double], sideNeg: mutable.HashMap[Int, Double],
+                sidePos: mutable.HashMap[Int, Double], currLineIndex: Int) = {
+    //合并并行线段
+    var chIndex1 = 0
+    var chIndex2 = 0
+    if (!sideNeg.isEmpty && sidePos.isEmpty) {
+      val maxInfo = sideNeg.maxBy(_._2)
+      chIndex1 = currLineIndex
+      chIndex2 = maxInfo._1
+      //平移到中间点
+    } else if (sideNeg.isEmpty && !sidePos.isEmpty) {
+      //合并并行线段
+      val maxInfo = sidePos.maxBy(_._2)
+      chIndex1 = currLineIndex
+      chIndex2 = maxInfo._1
+    } else if (!sideNeg.isEmpty && !sidePos.isEmpty) {
+      //合并并行线段
+      val maxNegInfo = sideNeg.maxBy(_._2)
+      val maxPosInfo = sidePos.maxBy(_._2)
+      chIndex1 = maxNegInfo._1
+      chIndex2 = maxPosInfo._1
+    }
+
     //计算两条线的中点
-    val md1 = MatrixUtil.matrixMean(lines(::, 2 * chIndex1 to 2 * chIndex1 + 1), Orie.Horz)
-    val md2 = MatrixUtil.matrixMean(lines(::, 2 * chIndex2 to 2 * chIndex2 + 1), Orie.Horz)
-    val middle = md1 + md2
-    middle :/= 2.0
+    val md1 = MatrixUtil.matrixMean(lines(::, chIndex1 to chIndex1 + 1), Orie.Horz)
+    val md2 = MatrixUtil.matrixMean(lines(::, chIndex2 to chIndex2 + 1), Orie.Horz)
+    val middle: DenseVector[Double] = (md1 + md2) :/ 2.0
     //平移线段，使其过中点
-    lines(::, 2 * chIndex0) := middle - (lines(::, 2 * chIndex0) :/ 2.0)
-    lines(::, 2 * chIndex0 + 1) := middle + (lines(::, 2 * chIndex0 + 1) / 2.0)
-    lines.delete(2 * chIndex1, Axis._1)
-    lines.delete(2 * chIndex1 + 1, Axis._1)
-    lines.delete(2 * chIndex2, Axis._1)
-    lines.delete(2 * chIndex2 + 1, Axis._1)
+    lines(::, 2 * currLineIndex) := middle - ((lines(::, 2 * currLineIndex + 1)
+      - lines(::, 2 * currLineIndex)) :/ 2.0)
+    lines(::, 2 * currLineIndex + 1) := middle + ((lines(::, 2 * currLineIndex + 1)
+      - lines(::, 2 * currLineIndex)) :/ 2.0)
+    val arrayIndex = new ArrayBuffer[Int]()
+    sideNeg.foreach(elem => {
+      arrayIndex.append(elem._1)
+      arrayIndex.append(elem._1 + 1)
+    })
+    sidePos.foreach(elem => {
+      arrayIndex.append(elem._1)
+      arrayIndex.append(elem._1 + 1)
+    })
+    //已自动排序好
+    lines.delete(arrayIndex.toArray, Axis._1)
   }
 
   /**
