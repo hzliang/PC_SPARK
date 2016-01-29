@@ -7,7 +7,7 @@ import spark.Line
 import util.{MatrixUtil, Orie, VectorUtil}
 
 import scala.collection.{mutable, immutable}
-import scala.collection.mutable.{TreeSet, IndexedSeq}
+import scala.collection.mutable.{TreeSet, HashMap}
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
@@ -517,12 +517,12 @@ object PCUtil {
     //先按线的长度进行排序
     var linesBak = lines.copy
     val lineCount = linesBak.cols / 2
-    val sortByLen = new TreeSet[Line]()
+    val lenSorted = new TreeSet[Line]()
     for (i <- 0 until lineCount) {
-      sortByLen += Line(linesBak(::, 2 * i), linesBak(::, 2 * i + 1))
+      lenSorted += Line(linesBak(::, 2 * i), linesBak(::, 2 * i + 1))
     }
     var i = 0
-    sortByLen.foreach(v => {
+    lenSorted.foreach(v => {
       linesBak(::, i) := v.start
       linesBak(::, i + 1) := v.end
       i += 2
@@ -530,8 +530,9 @@ object PCUtil {
 
     var j = 0
     var k = 0
-    val sideNeg = new mutable.HashMap[Int, Double]()
-    val sidePos = new mutable.HashMap[Int, Double]()
+    //索引及距离 分线的两侧
+    val sideNeg = new HashMap[Int, Double]()
+    val sidePos = new HashMap[Int, Double]()
     i = 0
     while (i < linesBak.cols / 2 - 1) {
       j = 0
@@ -544,7 +545,7 @@ object PCUtil {
       while (j < dist.length - 1) {
         if (dist(j) <= pllThres && dist(j + 1) <= pllThres) {
           k = j + 1
-          //选择线端点最近的
+          //选择线端点最近的j
           if (dist(j) < dist(j + 1)) {
             k = j
           }
@@ -601,10 +602,9 @@ object PCUtil {
     val md2 = MatrixUtil.matrixMean(lines(::, chIndex2 to chIndex2 + 1), Orie.Horz)
     val middle: DenseVector[Double] = (md1 + md2) :/ 2.0
     //平移线段，使其过中点
-    lines(::, 2 * currLineIndex) := middle - ((lines(::, 2 * currLineIndex + 1)
-      - lines(::, 2 * currLineIndex)) :/ 2.0)
-    lines(::, 2 * currLineIndex + 1) := middle + ((lines(::, 2 * currLineIndex + 1)
-      - lines(::, 2 * currLineIndex)) :/ 2.0)
+    val tmp = (lines(::, 2 * currLineIndex + 1) - lines(::, 2 * currLineIndex)) :/ 2.0
+    lines(::, 2 * currLineIndex) := middle - tmp
+    lines(::, 2 * currLineIndex + 1) := middle + tmp
     val arrayIndex = new ArrayBuffer[Int]()
     sideNeg.foreach(elem => {
       arrayIndex.append(elem._1)
@@ -615,7 +615,7 @@ object PCUtil {
       arrayIndex.append(elem._1 + 1)
     })
     //已自动排序好
-    lines.delete(arrayIndex.toArray, Axis._1)
+    lines.delete(arrayIndex, Axis._1)
   }
 
   /**

@@ -8,6 +8,8 @@ import util.MatrixUtil
 object Test {
   def main(args: Array[String]) {
     testPllFun
+    val v = DenseVector[Double](2, 2)
+    println(v :/ 2.0)
   }
 
   def testPllFun() = {
@@ -16,8 +18,8 @@ object Test {
     m(::, 1) := DenseVector[Double](2.0, 2.0)
     m(::, 2) := DenseVector[Double](0.5, 0.5)
     m(::, 3) := DenseVector[Double](0.8, 0.8)
-    m(::, 4) := DenseVector[Double](0.51, 0.51)
-    m(::, 5) := DenseVector[Double](0.81, 0.81)
+    m(::, 4) := DenseVector[Double](100.51, 100.51)
+    m(::, 5) := DenseVector[Double](100.81, 100.81)
 
 
     val res = PCUtil.filterPllLines(m, 10.0)
