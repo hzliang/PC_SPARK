@@ -21,12 +21,16 @@ object SKPC {
     val dataPath = "/home/hy/PC_SPARK/data/clus1.csv" //s"D:\\PC_SPARK\\data\\cros3.csv" //args(0)//
     //测试数据
     val data: DenseMatrix[Double] = PCUtil.csv2Mat(dataPath, 2)
-//    val mv = MatrixUtil.matrixLess1(data)
-//    ConfigPC.sigma /= mv //动态调整参数
+    //    val mv = MatrixUtil.matrixLess1(data)
+    //    ConfigPC.sigma /= mv //动态调整参数
     //        val dataPath = "F:\\Tongji_PC\\data\\sp_5p.csv"
-    val result = extractPC(data)
+    //    0.1650662157040177,-0.2596417602636582,0.20081371814241156,0.5914742631565687,0.04115556316137581,-0.6193396274765216,0.21202240605967737,-0.12730671073967065
+    //    0.1047926638651153,-0.1560649013216757,-0.6555679055923007,-0.1752710175170968,-0.7259388699343813,-0.46251566506329855,-0.01622364918743628,-0.25941136591256025
+    var result = extractPC(data)
+    println(MatrixUtil.matrix2String(result, "reduce"))
+    result = PCUtil.filterPllLines(result, ConfigPC.sigma / 1.0)
     //        print(MatrixUtil.matrix2String(result))
-    PCUtil.mat2csv("D:\\lines.csv", result)
+    //    PCUtil.mat2csv("D:\\lines.csv", result)
     //        logger.info("the best num of lines is:" + ((result.cols / 4) + 1))
     logger.info("the best num of lines is:" + (result.cols / 2))
     logger.info("******complete successfully!!!******")
