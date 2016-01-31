@@ -569,6 +569,7 @@ object PCUtil {
     //合并并行线段
     var chIndex1 = 0
     var chIndex2 = 0
+    var goon = true
     if (!sideNeg.isEmpty && sidePos.isEmpty) {
       val maxInfo = sideNeg.maxBy(_._2)
       chIndex1 = 2 * currLineIndex
@@ -585,28 +586,34 @@ object PCUtil {
       val maxPosInfo = sidePos.maxBy(_._2)
       chIndex1 = maxNegInfo._1
       chIndex2 = maxPosInfo._1
+    } else {
+      goon = false
     }
-
-    //计算两条线的中点
-    //    val md1 = MatrixUtil.matrixMean(lines(::, chIndex1 to chIndex1 + 1), Orie.Horz)
-    //    val md2 = MatrixUtil.matrixMean(lines(::, chIndex2 to chIndex2 + 1), Orie.Horz)
-    //    val middle: DenseVector[Double] = (md1 + md2) :/ 2.0
-    val middle = findShiftPoint(lines, chIndex1, chIndex2)
-    //平移线段，使其过中点
-    val tmp = (lines(::, 2 * currLineIndex + 1) - lines(::, 2 * currLineIndex)) :/ 2.0
-    lines(::, 2 * currLineIndex) := middle - tmp
-    lines(::, 2 * currLineIndex + 1) := middle + tmp
-    val arrayIndex = new ArrayBuffer[Int]()
-    sideNeg.foreach(elem => {
-      arrayIndex.append(elem._1)
-      arrayIndex.append(elem._1 + 1)
-    })
-    sidePos.foreach(elem => {
-      arrayIndex.append(elem._1)
-      arrayIndex.append(elem._1 + 1)
-    })
-    //已自动排序好
-    lines.delete(arrayIndex, Axis._1)
+    if (goon) {
+      //计算两条线的中点
+      //    val md1 = MatrixUtil.matrixMean(lines(::, chIndex1 to chIndex1 + 1), Orie.Horz)
+      //    val md2 = MatrixUtil.matrixMean(lines(::, chIndex2 to chIndex2 + 1), Orie.Horz)
+      //    val middle: DenseVector[Double] = (md1 + md2) :/ 2.0
+      val middle = findShiftPoint(lines, chIndex1, chIndex2)
+      //平移线段，使其过中点
+      val tmp = (lines(::, 2 * currLineIndex + 1) - lines(::, 2 * currLineIndex)) :/ 2.0
+      lines(::, 2 * currLineIndex) := middle - tmp
+      lines(::, 2 * currLineIndex + 1) := middle + tmp
+      val arrayIndex = new ArrayBuffer[Int]()
+      sideNeg.foreach(elem => {
+        arrayIndex.append(elem._1)
+        arrayIndex.append(elem._1 + 1)
+      })
+      sidePos.foreach(elem => {
+        arrayIndex.append(elem._1)
+        arrayIndex.append(elem._1 + 1)
+      })
+      //已自动排序好
+      lines.delete(arrayIndex, Axis._1)
+    }
+    else {
+      lines
+    }
   }
 
   /**
