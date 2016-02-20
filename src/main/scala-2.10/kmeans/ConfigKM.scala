@@ -5,8 +5,14 @@ package kmeans
   */
 object ConfigKM {
 
-    val numClusters: Int = 2
-    val numIter: Int = 20
-    val runs: Int = 3
-    val max_clusters = 6
+  var totalDataCount: Long = 300
+
+  val classDataNum: Int = 600
+
+  val itersTimes: Int = 20 //聚类迭代次数
+
+  val reRunTimes: Int = 3 //重复运行次数。选择最优的
+
+  def classCount: Int = (totalDataCount / classDataNum + 1).toInt //类别数量
+
 }
