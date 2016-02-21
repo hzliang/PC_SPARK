@@ -45,14 +45,14 @@ object KM {
   }
 
   /**
-    * 循环使用kmeans聚类，知道结果符合数量要求
-    *
+    * 循环使用kmeans聚类，直到结果符合数量要求
+    *即每个类数据的数量小于阈值
     * @param dataNeedCluster 需要聚类的数据
     * @param initCluCount    初始聚类数量
     * @param accum           累加器 记录当前总共由多少类
     * @param currCluCount    子类再次聚成的类数
     * @param rddArray        保持RDD数据
-    * @param flag            是否要改变类编号
+    * @param flag            是否要改变类标志
     */
   def kmeans(dataNeedCluster: RDD[Vector], initCluCount: Int, accum: Accumulator[Int], currCluCount: Int,
              rddArray: ArrayBuffer[RDD[(Int, Vector)]], flag: Boolean): Unit = {
