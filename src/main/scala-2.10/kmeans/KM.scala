@@ -1,5 +1,9 @@
 package kmeans
 
+import java.net.URI
+
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.{Path, FileSystem}
 import org.apache.spark.mllib.clustering.KMeans
 import org.apache.spark.mllib.linalg.{Vectors, Vector}
 import org.apache.spark.rdd.RDD
@@ -19,10 +23,14 @@ object KM {
     val data = SparkObj.ctx.textFile(input)
     val parsedData = data.map(s => Vectors.dense(s.split(',').map(_
       .toDouble))).cache()
-    ConfigKM.totalDataCount = parsedData.count()
+    //    ConfigKM.totalDataCount = parsedData.count()
     val clus = kmeans(parsedData)
     //            val resRDD = clus.predict(parsedData).zip(parsedData)
     val output = master + args(1) //"/hzl/output/cluster"
+    val hdfs = FileSystem.get(new URI(master), new Configuration())
+    val outputFS = new Path(output)
+    // 删除输出目录
+    if (hdfs.exists(outputFS)) hdfs.delete(outputFS, true)
     clus.saveAsTextFile(output)
     SparkObj.ctx.stop()
   }
@@ -32,42 +40,44 @@ object KM {
     logger.info("set the num of classes is " + ConfigKM.classCount + ", start computer...")
     val accum = SparkObj.ctx.accumulator(ConfigKM.classCount, "clusterNum")
     val clus = KMeans.train(data, ConfigKM.classCount, ConfigKM.itersTimes, ConfigKM.reRunTimes)
-    val resRDD = clus.predict(data).zip(data)
-    //    resRDD.groupByKey.mapValues(v => {
-    //      val currClassData = v.toArray
-    //      val currClassDataLen = currClassData.length
-    //      if (currClassDataLen >= ConfigKM.classDataNum * 1.5) {
-    //        val clusNumTmp = currClassData.length / ConfigKM.classDataNum + 1
-    //        val tmpRDD = SparkObj.ctx.makeRDD(currClassData).persist()
-    //        val clusTmp = KMeans.train(tmpRDD, clusNumTmp, ConfigKM.itersTimes, ConfigKM.reRunTimes)
-    //        val currNum = accum.value
-    //        accum += clusNumTmp
-    //        clusTmp.predict(tmpRDD).map(tv => {
-    //          tv + currNum
-    //        }).zip(data)
-    //      }
-    //      else {
-    //        v
-    //      }
-    //    })
 
-    resRDD.partitionBy(new ClusterPartitioner(ConfigKM.classCount)).mapPartitions(v => {
-      val currClassData = for (elem <- v) yield elem._2
-      val currClassDataLen = currClassData.length
-      if (currClassDataLen >= ConfigKM.classDataNum * 1.5) {
-        val clusNumTmp = currClassData.length / ConfigKM.classDataNum + 1
-        val tmpRDD = SparkObj.ctx.makeRDD(currClassData.toIndexedSeq).persist()
-        val clusTmp = KMeans.train(tmpRDD, clusNumTmp, ConfigKM.itersTimes, ConfigKM.reRunTimes)
+    val resRDD = clus.predict(data).zip(data)
+    resRDD.groupByKey.mapValues(v => {
+      val classData = v.toArray
+      if (classData.length >= ConfigKM.classDataNum * 1.5) {
+        val newClassCount = classData.length / ConfigKM.classDataNum + 1
+        val tmpRDD = SparkObj.ctx.makeRDD(classData).persist()
+        val newCluster = KMeans.train(tmpRDD, newClassCount, ConfigKM.itersTimes, ConfigKM.reRunTimes)
         val currNum = accum.value
-        accum += clusNumTmp
-        clusTmp.predict(tmpRDD).map(tv => {
+        accum += newClassCount
+        newCluster.predict(tmpRDD).map(tv => {
           tv + currNum
-        }).zip(data).collect().toIterator
+        }).zip(data).collect
       }
       else {
-        v
+        classData
       }
     })
+    //    println(resRDD.partitionBy(new ClusterPartitioner(ConfigKM.classCount)).partitions.length)
+    ////    resRDD
+    //    //
+    //        resRDD.partitionBy(new ClusterPartitioner(ConfigKM.classCount)).mapPartitions(v => {
+    //          val currClassData = for (elem <- v) yield elem._2
+    //          val currClassDataLen = currClassData.length
+    //          if (currClassDataLen >= ConfigKM.classDataNum * 1.5) {
+    //            val clusNumTmp = currClassData.length / ConfigKM.classDataNum + 1
+    //            val tmpRDD = SparkObj.ctx.makeRDD(currClassData.toArray)
+    //            val clusTmp = KMeans.train(tmpRDD, clusNumTmp, ConfigKM.itersTimes, ConfigKM.reRunTimes)
+    //            val currNum = accum.value
+    //            accum += clusNumTmp
+    //            clusTmp.predict(tmpRDD).map(tv => {
+    //              tv + currNum
+    //            }).zip(data).collect().toIterator
+    //          }
+    //          else {
+    //            v
+    //          }
+    //        })
   }
 
 }
