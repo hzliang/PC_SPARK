@@ -21,9 +21,9 @@ object KM {
       .toDouble))).cache()
     ConfigKM.totalDataCount = parsedData.count()
     val clus = kmeans(parsedData)
-    //        val resRDD = clus.predict(parsedData).zip(parsedData)
-    //        val output = master + args(1) //"/hzl/output/cluster"
-    //        resRDD.saveAsTextFile(output)
+    //            val resRDD = clus.predict(parsedData).zip(parsedData)
+    val output = master + args(1) //"/hzl/output/cluster"
+    clus.saveAsTextFile(output)
     SparkObj.ctx.stop()
   }
 
