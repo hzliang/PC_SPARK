@@ -28,7 +28,13 @@ object KM {
     val parsedData = data.map(s => Vectors.dense(s.split(',').map(_
       .toDouble))).cache()
     ConfigKM.totalDataCount = parsedData.count()
-    val clus = kmeans(parsedData, ConfigKM.classCount)
+    //    val clus = KMeans.train(parsedData, ConfigKM.classCount,
+    //      ConfigKM.itersTimes, ConfigKM.reRunTimes).predict(parsedData).
+    //      map((_, 1)).reduceByKey(_ + _)
+    val accum = SparkObj.ctx.accumulator(ConfigKM.classCount, "My Accumulator")
+    val rddArray = new ArrayBuffer[RDD[(Int, Vector)]]()
+    kmeans(parsedData, ConfigKM.classCount, accum, accum.value, rddArray, false)
+    val clus = rddArray.reduce(_ union _)
     //            val resRDD = clus.predict(parsedData).zip(parsedData)
     val output = master + args(1) //"/hzl/output/cluster"
     val hdfs = FileSystem.get(new URI(master), new Configuration())
@@ -39,21 +45,39 @@ object KM {
     SparkObj.ctx.stop()
   }
 
-  def kmeans(dataNeedCluster: RDD[Vector], clusterCount: Int): RDD[(Int, Vector)] = {
-    val clus = KMeans.train(dataNeedCluster, clusterCount, ConfigKM.itersTimes, ConfigKM.reRunTimes)
-    val preditRDD = clus.predict(dataNeedCluster)
-    val resRDD = preditRDD.zip(dataNeedCluster).persist()
-    val rddArray = new ArrayBuffer[RDD[(Int, Vector)]]()
-    preditRDD.map((_, 1)).reduceByKey(_ + _).collect().foreach(clusterInfo => {
+  /**
+    * 循环使用kmeans聚类，知道结果符合数量要求
+    *
+    * @param dataNeedCluster 需要聚类的数据
+    * @param initCluCount    初始聚类数量
+    * @param accum           累加器 记录当前总共由多少类
+    * @param currCluCount    子类再次聚成的类数
+    * @param rddArray        保持RDD数据
+    * @param flag            是否要改变类编号
+    */
+  def kmeans(dataNeedCluster: RDD[Vector], initCluCount: Int, accum: Accumulator[Int], currCluCount: Int,
+             rddArray: ArrayBuffer[RDD[(Int, Vector)]], flag: Boolean): Unit = {
+    val clu = KMeans.train(dataNeedCluster, initCluCount, ConfigKM.itersTimes, ConfigKM.reRunTimes)
+    val preRDD = clu.predict(dataNeedCluster)
+    val resRDD = preRDD.zip(dataNeedCluster).persist()
+    preRDD.map((_, 1)).reduceByKey(_ + _).collect().foreach(clusterInfo => {
       val classData = resRDD.filter(currCluster => {
         currCluster._1 == clusterInfo._1
       })
       if (clusterInfo._2 >= ConfigKM.classDataNum) {
-        kmeans(classData.map(_._2), clusterInfo._1 / ConfigKM.classDataNum + 1)
+        kmeans(classData.map(_._2), clusterInfo._2 / ConfigKM.classDataNum + 1,
+          accum, accum.value, rddArray, true)
       } else {
-        rddArray.append(classData)
+        if (flag) {
+          rddArray.append(classData.map(v => {
+            (v._1 + currCluCount, v._2)
+          }))
+          accum += initCluCount
+        }
+        else {
+          rddArray.append(classData)
+        }
       }
     })
-    rddArray.reduce(_ union _)
   }
 }
