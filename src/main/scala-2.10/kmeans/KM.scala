@@ -4,7 +4,7 @@ import org.apache.spark.mllib.clustering.KMeans
 import org.apache.spark.mllib.linalg.{Vectors, Vector}
 import org.apache.spark.rdd.RDD
 import org.slf4j.{Logger, LoggerFactory}
-import spark.{ClusterAccumulableParam, SparkObj}
+import spark.{StringAccumulableParam, ClusterAccumulableParam, SparkObj}
 
 
 /**
@@ -20,47 +20,54 @@ object KM {
     val parsedData = data.map(s => Vectors.dense(s.split(',').map(_
       .toDouble))).cache()
     ConfigKM.totalDataCount = parsedData.count()
-    val clus = km(parsedData)
-    val resRDD = clus.predict(parsedData).zip(parsedData)
-    val output = master + args(1) //"/hzl/output/cluster"
-    resRDD.saveAsTextFile(output)
+    val clus = kmeans(parsedData)
+    //        val resRDD = clus.predict(parsedData).zip(parsedData)
+    //        val output = master + args(1) //"/hzl/output/cluster"
+    //        resRDD.saveAsTextFile(output)
     SparkObj.ctx.stop()
   }
 
-  def km(data: RDD[Vector]) = {
+  def kmeans(data: RDD[Vector]) = {
     //聚类
-    logger.info("set the num of classes is 2, start computer...")
+    logger.info("set the num of classes is " + ConfigKM.classCount + ", start computer...")
+    val accum = SparkObj.ctx.accumulator(ConfigKM.classCount, "clusterNum")
     val clus = KMeans.train(data, ConfigKM.classCount, ConfigKM.itersTimes, ConfigKM.reRunTimes)
-    clus.clusterCenters
     val resRDD = clus.predict(data).zip(data)
-    clus.predict(data).groupBy(_).map(v)
-    resRDD.groupBy(v => v._1).map(v => {
-      val clusCount = v._2.size
-      if (clusCount < ConfigKM.classDataNum) {
-        val clusTmp = KMeans.train(data, clusCount / ConfigKM.classDataNum + 1, ConfigKM.itersTimes, ConfigKM.reRunTimes)
-        clusTmp zip v._2
+    //    resRDD.groupByKey.mapValues(v => {
+    //      val currClassData = v.toArray
+    //      val currClassDataLen = currClassData.length
+    //      if (currClassDataLen >= ConfigKM.classDataNum * 1.5) {
+    //        val clusNumTmp = currClassData.length / ConfigKM.classDataNum + 1
+    //        val tmpRDD = SparkObj.ctx.makeRDD(currClassData).persist()
+    //        val clusTmp = KMeans.train(tmpRDD, clusNumTmp, ConfigKM.itersTimes, ConfigKM.reRunTimes)
+    //        val currNum = accum.value
+    //        accum += clusNumTmp
+    //        clusTmp.predict(tmpRDD).map(tv => {
+    //          tv + currNum
+    //        }).zip(data)
+    //      }
+    //      else {
+    //        v
+    //      }
+    //    })
+
+    resRDD.partitionBy(new ClusterPartitioner(ConfigKM.classCount)).mapPartitions(v => {
+      val currClassData = for (elem <- v) yield elem._2
+      val currClassDataLen = currClassData.length
+      if (currClassDataLen >= ConfigKM.classDataNum * 1.5) {
+        val clusNumTmp = currClassData.length / ConfigKM.classDataNum + 1
+        val tmpRDD = SparkObj.ctx.makeRDD(currClassData.toIndexedSeq).persist()
+        val clusTmp = KMeans.train(tmpRDD, clusNumTmp, ConfigKM.itersTimes, ConfigKM.reRunTimes)
+        val currNum = accum.value
+        accum += clusNumTmp
+        clusTmp.predict(tmpRDD).map(tv => {
+          tv + currNum
+        }).zip(data).collect().toIterator
       }
       else {
-        clusAcc += v._2.toArray
+        v
       }
     })
-    clus
   }
-
-  def kmeans(points: RDD[Vector]) = {
-
-
-    System.err.println("Centroids changed by\n" +
-      "\t   " + movement.map(d => "%3f".format(d)).mkString("(", ", ", ")") + "\n" +
-      "\tto " + newCentroids.mkString("(", ", ", ")"))
-
-    // Iterate if movement exceeds threshold
-    if (movement.exists(_ > epsilon))
-      kmeans(points, newCentroids, epsilon, sc)
-    else
-      return newCentroids
-  }
-
-  def belongTo(cente:)
 
 }
