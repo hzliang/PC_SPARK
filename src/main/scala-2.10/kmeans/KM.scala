@@ -51,8 +51,8 @@ object KM {
     * @param initCluCount    初始聚类数量
     * @param accum           累加器 记录当前总共由多少类
     * @param currCluCount    子类再次聚成的类数
-    * @param rddArray        保持RDD数据
-    * @param flag            是否要改变类标志
+    * @param rddArray        保存RDD数据
+    * @param flag            是否是对子类聚类
     */
   def kmeans(dataNeedCluster: RDD[Vector], initCluCount: Int, accum: Accumulator[Int], currCluCount: Int,
              rddArray: ArrayBuffer[RDD[(Int, Vector)]], flag: Boolean): Unit = {
