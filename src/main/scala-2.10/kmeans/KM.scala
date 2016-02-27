@@ -40,7 +40,7 @@ object KM {
     val outputFS = new Path(output)
     // 删除输出目录
     if (hdfs.exists(outputFS)) hdfs.delete(outputFS, true)
-    clus.saveAsTextFile(output)
+    clus.repartition(1).saveAsTextFile(output)
     SparkObj.ctx.stop()
   }
 

@@ -8,9 +8,7 @@ import util.MatrixUtil
   */
 object Test {
   def main(args: Array[String]) {
-    testPllFun
-    val v = DenseVector[Double](2, 2)
-    println(v :/ 2.0)
+    zipTest
   }
 
   def testPllFun() = {
@@ -44,5 +42,16 @@ object Test {
     println(m.delete(1, axis = Axis._1))
   }
 
+  def zipTest() = {
+    val a = new Array[Int](2)
+    a(0) = 0
+    a(1) = 1
+
+    val b = new Array[Int](2)
+    b(0) = 0
+    b(1) = 1
+    val c = a zip b
+    c.foreach(println)
+  }
 
 }
