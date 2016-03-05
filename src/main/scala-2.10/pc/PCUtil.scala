@@ -74,7 +74,7 @@ object PCUtil {
     val dataMat = DenseMatrix.zeros[Double](lineCount, propCount)
     var i = 0
     data.foreach(v => {
-      val str = v.split(",")
+      val str = v.split("\t")
       dataMat(i, ::) := DenseVector(str(0).toDouble, str(1).toDouble).t
       i += 1
     })
@@ -503,7 +503,7 @@ object PCUtil {
     *
     * @param lines
     */
-  def filterPllLines(lines: DenseMatrix[Double], pllThres: Double) = {
+  def filterOverfitLines(lines: DenseMatrix[Double], pllThres: Double) = {
     //先按线的长度进行排序
     var linesBak = lines.copy
     val lineCount = linesBak.cols / 2

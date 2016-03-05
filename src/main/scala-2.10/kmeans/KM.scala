@@ -63,7 +63,7 @@ object KM {
       val classData = resRDD.filter(currCluster => {
         currCluster._1 == clusterInfo._1
       })
-      if (clusterInfo._2 >= ConfigKM.classDataNum) {
+      if (clusterInfo._2 >= 1.25 * ConfigKM.classDataNum) {
         kmeans(classData.map(_._2), clusterInfo._2 / ConfigKM.classDataNum + 1,
           accum, accum.value, rddArray, true)
       } else {

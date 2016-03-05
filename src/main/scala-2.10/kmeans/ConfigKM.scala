@@ -7,7 +7,7 @@ object ConfigKM {
 
   var totalDataCount: Long = 300
 
-  val classDataNum: Int = 600
+  val classDataNum: Int = 1000
 
   val itersTimes: Int = 20 //聚类迭代次数
 
