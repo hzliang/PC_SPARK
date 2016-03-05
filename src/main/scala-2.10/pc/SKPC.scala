@@ -55,7 +55,7 @@ object SKPC {
     p.title = "principal curves"
     p.xlabel = "x axis"
     p.ylabel = "y axis"
-    f.saveas("lines.png")
+    f.saveas("../data/lines.png")
   }
 
   //    val lines = (data: DenseMatrix[Double]) => {
