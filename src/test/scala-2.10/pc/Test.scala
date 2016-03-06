@@ -1,7 +1,7 @@
-import breeze.linalg.{argmin, Axis, DenseVector, DenseMatrix}
+package pc
+
+import breeze.linalg.{Axis, DenseMatrix, DenseVector}
 import breeze.plot._
-import pc.PCUtil
-import util.MatrixUtil
 
 /**
   * Created by ad on 2015/12/27.
