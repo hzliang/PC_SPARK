@@ -24,7 +24,7 @@ object Run {
     val input = master + args(0) //"/hzl/input/cros3.csv" //输入文件
     //将输入每一行数据转成向量Dense(x,y)
     val dataRDD = SparkObj.ctx.textFile(input).map(s => {
-        Vectors.dense(s.split('\t').map(_.toDouble))
+        Vectors.dense(s.split(',').map(_.toDouble))
       }).cache()
     //    val clusRDD = KM.kmeans(dataRDD).predict(dataRDD).zip(dataRDD).persist()
     ConfigKM.totalDataCount = dataRDD.count()
