@@ -1,5 +1,9 @@
 基于MapReduce的海量数据主曲线算法学习研究
 
+    1.分布式聚类
+    2.局部主成分线段提取
+    3.连接局部主成分线段
+
 Ubuntu14.4（已测试）安装NativeSystemBLAS
 sudo apt-get install libatlas3-base libopenblas-base
 sudo update-alternatives --config libblas.so
@@ -17,7 +21,13 @@ update-alternatives: using /usr/lib/atlas-base/atlas/libblas.so.3 to provide /us
 CentOS6.7
 yum install blas blas-devel lapack lapack-devel atlas atlas-devel  --nogpgcheck
 
-运行命令(standalone)：
+运行命令：
+(standalone)
 spark-submit --class run.Run --master spark://192.168.1.121:7077  
---executor-memory 4G  --total-executor-cores 40 /root/pc_spark.jar 
+--executor-memory 6G  --total-executor-cores 40 /root/pc_spark.jar
 /hzl/input/sp_5p.csv /hzl/input/clus
+(Yarn)
+spark-submit --class run.Run --master yarn-cluster --num-executors 4
+--driver-memory 6g --executor-memory 6g --executor-cores 2 pc_spark.jar
+/hzl/input/sin3.csv /hzl/output/clus
+
