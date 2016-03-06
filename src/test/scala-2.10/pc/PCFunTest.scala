@@ -6,7 +6,7 @@ import breeze.plot._
 /**
   * Created by ad on 2015/12/27.
   */
-object Test {
+object PCFunTest {
   def main(args: Array[String]) {
     linkLines
   }
