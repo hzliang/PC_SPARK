@@ -18,7 +18,7 @@ object SKPC {
 
   def main(args: Array[String]) {
 
-    val dataPath = "/home/hy/PC_SPARK/data/cros3.csv" //s"D:\\PC_SPARK\\data\\cros3.csv" //args(0)//
+    val dataPath = "D:\\PC_SPARK\\data\\cros3.csv" //s"D:\\PC_SPARK\\data\\cros3.csv" //args(0)//
     //测试数据
     val data: DenseMatrix[Double] = PCUtil.csv2Mat(dataPath, 2)
     //    val mv = MatrixUtil.matrixLess1(data)
@@ -55,7 +55,7 @@ object SKPC {
     p.title = "principal curves"
     p.xlabel = "x axis"
     p.ylabel = "y axis"
-    f.saveas("../data/lines.png")
+//    f.saveas("../data/lines.png")
   }
 
   //    val lines = (data: DenseMatrix[Double]) => {
