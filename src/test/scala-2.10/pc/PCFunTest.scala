@@ -1,14 +1,17 @@
 package pc
 
-import breeze.linalg.{Axis, DenseMatrix, DenseVector}
+import java.util.Date
+
+import breeze.linalg.{sum, Axis, DenseMatrix, DenseVector}
 import breeze.plot._
+import util.{Orie, VectorUtil, MatrixUtil}
 
 /**
   * Created by ad on 2015/12/27.
   */
 object PCFunTest {
   def main(args: Array[String]) {
-    linkLines
+    reRep
   }
 
   def testPllFun() = {
@@ -76,5 +79,42 @@ object PCFunTest {
     val c = a zip b
     c.foreach(println)
   }
+
+  def matrixPairDSTest() = {
+    var a = DenseMatrix.zeros[Double](2, 2)
+    var b = DenseMatrix.zeros[Double](2, 2)
+    a(0, 0) = 1.0
+    a(0, 1) = 2.0
+    a(1, 0) = 3.0
+    a(1, 1) = 4.0
+    b(0, 0) = 4.0
+    b(0, 1) = 5.0
+    b(1, 0) = 6.0
+    b(1, 1) = 7.0
+    println(MatrixUtil.matrixPairDS(a, b))
+
+  }
+
+  def repTest() = {
+    var nowtime = new Date().getTime
+    val m = DenseVector.rand[Double](2000)
+    val nm = VectorUtil.vectorRep(m, 2000, Orie.Horz)
+    var nowTime2 = new Date().getTime
+    println(nowTime2 - nowtime)
+
+    //
+    //    val re = DenseMatrix.zeros[Double](2000, 2000)
+    //    for (i <- 0 until 2000) re(::, i) := m
+    //    println(new Date().getTime - nowTime2)
+  }
+
+  def reRep() = {
+    val v = DenseVector.rand[Double](5);
+    println(v)
+    println(VectorUtil.vectorRep(v, 2, Orie.Horz))
+    println("________________")
+    println(VectorUtil.vectorRep(v, 2, Orie.Vert))
+  }
+
 
 }
