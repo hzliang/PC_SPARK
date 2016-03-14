@@ -11,7 +11,17 @@ import util.{Orie, VectorUtil, MatrixUtil}
   */
 object PCFunTest {
   def main(args: Array[String]) {
-    reRep
+    var a = DenseMatrix.zeros[Double](2, 2)
+    var b = DenseMatrix.zeros[Double](2, 2)
+    a(0, 0) = 1.0
+    a(0, 1) = 2.0
+    a(1, 0) = 3.0
+    a(1, 1) = 4.0
+    b(0, 0) = 4.0
+    b(0, 1) = 5.0
+    b(1, 0) = 6.0
+    b(1, 1) = 7.0
+    println(MatrixUtil.matrixPairDS(a, b))
   }
 
   def testPllFun() = {
