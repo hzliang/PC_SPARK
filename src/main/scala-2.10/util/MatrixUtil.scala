@@ -18,11 +18,10 @@ object MatrixUtil {
     * @return 矩阵 m*m
     */
   def matrixPairDS(m1: DenseMatrix[Double], m2: DenseMatrix[Double]): DenseMatrix[Double] = {
-    val aa = sum(m1 :* m1, Axis._0).t
-    val bb = sum(m2 :* m2, Axis._0).t
+    val aa = sum(m1 :* m1, Axis._0).toDenseVector
+    val bb = sum(m2 :* m2, Axis._0).toDenseVector
     val ab: DenseMatrix[Double] = m1.t * m2
     ab :*= 2.0
-    //      matrixRep(aa.t, bb.cols, Orie.Horz) + matrixRep(bb, aa.cols, Orie.Vert) - ab)
     abs(VectorUtil.vectorRep(aa, bb.length, Orie.Horz) + VectorUtil.vectorRep(bb, aa.length, Orie.Vert) - ab)
   }
 
@@ -58,7 +57,7 @@ object MatrixUtil {
   def matrixMean(m: DenseMatrix[Double], direct: Orie) = {
     direct match {
       case Orie.Horz => mean(m(*, ::)).toDenseVector //水平方向
-      case Orie.Vert => mean(m(::, *)).t //竖直方向
+      case Orie.Vert => mean(m(::, *)).toDenseVector //竖直方向
     }
   }
 
@@ -72,7 +71,7 @@ object MatrixUtil {
   def matrixSum(m: DenseMatrix[Double], direct: Orie) = {
     direct match {
       case Orie.Horz => sum(m(*, ::)).toDenseVector //水平方向
-      case Orie.Vert => sum(m(::, *)).t //竖直方向
+      case Orie.Vert => sum(m(::, *)).toDenseVector //竖直方向
     }
   }
 
@@ -244,7 +243,7 @@ object MatrixUtil {
   def matrixMin(m: DenseMatrix[Double], direct: Orie) = {
     direct match {
       case Orie.Horz => min(m(*, ::)).toDenseVector
-      case Orie.Vert => min(m(::, *)).t
+      case Orie.Vert => min(m(::, *)).toDenseVector
     }
   }
 
@@ -258,7 +257,7 @@ object MatrixUtil {
   def argMatrixMin(m: DenseMatrix[Double], direct: Orie) = {
     direct match {
       case Orie.Horz => argmin(m(*, ::)).toDenseVector
-      case Orie.Vert => argmin(m(::, *)).t
+      case Orie.Vert => argmin(m(::, *)).toDenseVector
     }
   }
 
@@ -272,7 +271,7 @@ object MatrixUtil {
   def mmMatrixMin(m: DenseMatrix[Double], direct: Orie) = {
     direct match {
       case Orie.Horz => (min(m(*, ::)).toDenseVector, argmin(m(*, ::)).toDenseVector)
-      case Orie.Vert => (min(m(::, *)).t, argmin(m(::, *)).t)
+      case Orie.Vert => (min(m(::, *)).toDenseVector, argmin(m(::, *)).toDenseVector)
     }
   }
 
@@ -286,7 +285,7 @@ object MatrixUtil {
   def matrixMax(m: DenseMatrix[Double], direct: Orie) = {
     direct match {
       case Orie.Horz => max(m(*, ::)).toDenseVector
-      case Orie.Vert => max(m(::, *)).t
+      case Orie.Vert => max(m(::, *)).toDenseVector
     }
   }
 
@@ -300,7 +299,7 @@ object MatrixUtil {
   def argMatrixMax(m: DenseMatrix[Double], direct: Orie) = {
     direct match {
       case Orie.Horz => argmax(m(*, ::)).toDenseVector
-      case Orie.Vert => argmax(m(::, *)).t
+      case Orie.Vert => argmax(m(::, *)).toDenseVector
     }
   }
 }

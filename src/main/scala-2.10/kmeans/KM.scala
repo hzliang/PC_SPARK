@@ -22,7 +22,7 @@ object KM {
 
   def main(args: Array[String]) {
     val master = "hdfs://192.168.1.121:9000"
-    val input = master + args(0) //"/hzl/input/cros3.csv"
+    val input = master + args(0) //"/hzl/input/SKEffectTest.csv"
     val data = SparkObj.ctx.textFile(input)
     val parsedData = data.map(s => Vectors.dense(s.split(',').map(_
       .toDouble))).cache()

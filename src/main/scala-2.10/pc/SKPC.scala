@@ -18,7 +18,7 @@ object SKPC {
 
   def main(args: Array[String]) {
 
-    val dataPath = "D:\\PC_SPARK\\data\\SKEffectTest.csv" //s"D:\\PC_SPARK\\data\\SKEffectTest.csv" //args(0)//
+    val dataPath = "D:\\PC_SPARK\\data\\part-00000.txt" //s"D:\\PC_SPARK\\data\\SKEffectTest.csv" //args(0)//
     //测试数据
     val data: DenseMatrix[Double] = PCUtil.csv2Mat(dataPath, 2)
     //    val mv = MatrixUtil.matrixLess1(data)
@@ -227,7 +227,7 @@ object SKPC {
           oldLogLike = newLogLike
           iterators += 1
         }
-        println("")
+        println("afasdfsdf")
         logger.info("adjust completed,an new line may be added again...")
         //确定线的连接方式
         currLines = lines(::, 0 to 2 * k + 1)

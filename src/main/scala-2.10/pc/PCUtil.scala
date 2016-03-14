@@ -71,12 +71,14 @@ object PCUtil {
   def csv2Mat(csvPath: String, propCount: Int): DenseMatrix[Double] = {
     val data = Source.fromFile(csvPath).getLines().toArray
     val lineCount = data.length
-    val dataMat = DenseMatrix.zeros[Double](lineCount, propCount)
+    val dataMat = DenseMatrix.zeros[Double](586, propCount)
     var i = 0
     data.foreach(v => {
-      val str = v.split("\t")
-      dataMat(i, ::) := DenseVector(str(0).toDouble, str(1).toDouble).t
-      i += 1
+      val str = v.split(",")
+      if (str(0).toDouble == 3) {
+        dataMat(i, ::) := DenseVector(str(1).toDouble, str(2).toDouble).t
+        i += 1
+      }
     })
     dataMat
   }
