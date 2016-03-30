@@ -15,7 +15,7 @@ object ConfigPC {
 
   val iter_thresTimes = 1150 //内部迭代停止
 
-  val lamba = 0.5 //the angle-penalty weighter
+  var lamba = 0.5 //the angle-penalty weighter
 
   val Infs = 1.0e-10 //定义一个小数
 
