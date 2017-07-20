@@ -7,6 +7,7 @@ import org.apache.spark.{SparkConf, SparkContext}
   */
 object SparkObj {
     val conf = new SparkConf().setAppName(ConfigSpk.taskName)
+      .setMaster("local")
     //.setMaster("local")
     val ctx = new SparkContext(conf)
 }
