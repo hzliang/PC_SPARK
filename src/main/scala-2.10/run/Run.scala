@@ -22,7 +22,7 @@ object Run {
 
   def main(args: Array[String]) {
     val master = "hdfs://127.0.0.1:9000"
-    val input = "/root/PC_SPARK/data/SKEffectTest.csv" //输入文件
+    val input = "/root/PC_SPARK/data/spirl" //输入文件
     //将输入每一行数据转成向量Dense(x,y)
     val dataRDD = SparkObj.ctx.textFile(input).map(s => {
         Vectors.dense(s.split('\t').map(_.toDouble))

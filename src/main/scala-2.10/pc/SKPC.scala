@@ -18,7 +18,7 @@ object SKPC {
 
   def main(args: Array[String]) {
 
-    val dataPath = "D:\\PC_SPARK\\data\\part-00000.txt" //s"D:\\PC_SPARK\\data\\SKEffectTest.csv" //args(0)//
+    val dataPath = "D:\\PC_SPARK\\data\\spirl" //s"D:\\PC_SPARK\\data\\SKEffectTest.csv" //args(0)//
     //测试数据
     val data: DenseMatrix[Double] = PCUtil.csv2Mat(dataPath, 2)
     //    val mv = MatrixUtil.matrixLess1(data)
