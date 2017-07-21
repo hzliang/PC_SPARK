@@ -58,13 +58,13 @@ object KM {
              rddArray: ArrayBuffer[RDD[(Int, Vector)]], flag: Boolean): Unit = {
     val clu = KMeans.train(dataNeedCluster, initCluCount, ConfigKM.itersTimes, ConfigKM.reRunTimes)
     val preRDD = clu.predict(dataNeedCluster)
-    val resRDD = preRDD.zip(dataNeedCluster).persist()
+    val resRDD = preRDD.zip(dataNeedCluster)//.persist()
     preRDD.map((_, 1)).reduceByKey(_ + _).collect().foreach(clusterInfo => {
       val classData = resRDD.filter(currCluster => {
         currCluster._1 == clusterInfo._1
       })
       if (clusterInfo._2 >= 1.25 * ConfigKM.classDataNum) {
-        val tmp = math.ceil(clusterInfo._2 / ConfigKM.classDataNum).toInt
+        val tmp = math.ceil((clusterInfo._2+0.0) / ConfigKM.classDataNum).toInt
         kmeans(classData.map(_._2), tmp, totalCluCount + tmp, rddArray, true)
       } else {
         if (flag) {

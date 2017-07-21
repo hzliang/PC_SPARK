@@ -1,3 +1,5 @@
+import java.io.{BufferedReader, FileReader}
+
 import spire.std.float
 
 /**
@@ -14,8 +16,17 @@ object MatReader {
     val d = mlArray.asInstanceOf[MLDouble]
     val matrix = d.getArray //只有jmatio v0.2版本中才有d.getArray方法
 
+    val file = new BufferedReader(new  FileReader("/root/PC_SPARK/data/Spiral.txt"))
+    var line=file.readLine()
+    while(line!=null){
+      val strs = line.split(",")
+      println(strs(0)+"\t"+strs(1))
+      line = file.readLine()
+    }
+    //matrix.foreach(i=>println(i(0).toString.substring(0,1)+"\t"+i(1).toString.substring(0,8)+"\t"+i(2).toString.substring(0,8)))
 
-    matrix.foreach(i=>println(i(0).toString.substring(0,1)+"\t"+i(1).toString.substring(0,8)+"\t"+i(2).toString.substring(0,8)))
+
+
   }
 
 }
